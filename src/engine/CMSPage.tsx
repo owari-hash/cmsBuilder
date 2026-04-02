@@ -8,10 +8,27 @@ interface CMSPageProps {
 }
 
 export const CMSPage: React.FC<CMSPageProps> = ({ design, componentMap, route }) => {
-  const page = design.pages.find((p) => p.route === route);
+  if (!design || !design.pages) {
+    return (
+      <div className="p-20 text-center">
+        <h1 className="text-2xl font-bold text-red-600">Database Connection Error</h1>
+        <p className="text-gray-600 mt-4">Failed to fetch site design for this project. Check your backend port (4000) and NEXT_PUBLIC_PROJECT_NAME.</p>
+      </div>
+    );
+  }
+
+  const page = design.pages.find((p: any) => p.route === route);
 
   if (!page) {
-    return <div>404 - Page Not Found</div>;
+    return (
+      <div className="p-20 text-center">
+        <h1 className="text-4xl font-bold text-gray-800">404</h1>
+        <p className="text-gray-600 mt-2">The route "{route}" is not defined in your database for this project.</p>
+        <div className="mt-6 flex gap-4 justify-center">
+          <a href="/" className="px-4 py-2 bg-blue-600 text-white rounded-lg">Go Home</a>
+        </div>
+      </div>
+    );
   }
 
   const themeStyles = {
