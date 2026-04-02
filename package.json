@@ -1,6 +1,6 @@
 {
   "name": "@cms-builder/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A scalable CMS framework for Next.js projects",
   "keywords": [
     "cms",
@@ -25,8 +25,11 @@
     "README.md"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "next lint"
+    "dev": "next dev",
+    "build": "tsc",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "next": "latest",

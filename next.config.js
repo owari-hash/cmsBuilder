@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["cms-builder"],
+  transpilePackages: ["@cms-builder/core"],
   experimental: {
-    serverActions: {
-      allowedOrigins: ["localhost:3000"]
-    }
+    // serverActions is now an object or enabled by default in newer Next.js
   }
 };
 
-module.exports = nextConfig;
+export default nextConfig;
