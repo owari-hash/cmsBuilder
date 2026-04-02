@@ -13,7 +13,11 @@ class CMSApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch content for project: ${projectName}`);
+      const errorText = await res.text().catch(() => 'No error body');
+      throw new Error(`Framework Fetch Error: Failed to load project "${projectName}". 
+        URL: ${this.baseUrl}/sites/${projectName}/content 
+        Status: ${res.status}
+        Response: ${errorText}`);
     }
 
     return res.json();

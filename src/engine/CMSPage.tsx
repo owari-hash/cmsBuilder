@@ -41,16 +41,34 @@ export const CMSPage: React.FC<CMSPageProps> = ({ design, componentMap, route })
     <div className={design.theme.darkMode ? 'dark' : ''} style={themeStyles}>
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <main>
-          {page.components
-            .sort((a, b) => a.order - b.order)
-            .map((comp, index) => {
-              const Component = componentMap[comp.type];
-              if (!Component) {
-                console.warn(`Component type "${comp.type}" not found in componentMap.`);
-                return null;
-              }
-              return <Component key={`${comp.type}-${index}`} {...comp.props} theme={design.theme} />;
-            })}
+          {page.components.length === 0 ? (
+            <div className="p-20 text-center">
+              <h2 className="text-xl font-semibold opacity-50">Empty Page</h2>
+              <p className="mt-2">This route exists in the DB, but has no components assigned to it.</p>
+            </div>
+          ) : (
+            page.components
+              .sort((a, b) => a.order - b.order)
+              .map((comp: any, index: number) => {
+                const Component = componentMap[comp.type];
+                if (!Component) {
+                  return (
+                    <div key={index} className="p-4 m-2 border-2 border-dashed border-red-300 rounded text-red-500">
+                      Component "{comp.type}" not found in your project components!
+                    </div>
+                  );
+                }
+                return (
+                  <Component 
+                    key={`${comp.type}-${index}`} 
+                    {...comp.props} 
+                    projectName={design.projectName}
+                    pages={design.pages}
+                    theme={design.theme} 
+                  />
+                );
+              })
+          )}
         </main>
       </div>
     </div>
