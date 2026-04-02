@@ -2,11 +2,24 @@
   "name": "@cms-builder/core",
   "version": "1.0.0",
   "description": "A scalable CMS framework for Next.js projects",
+  "keywords": [
+    "cms",
+    "nextjs",
+    "framework"
+  ],
+  "homepage": "https://github.com/owari-hash/cmsBuilder#readme",
+  "bugs": {
+    "url": "https://github.com/owari-hash/cmsBuilder/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owari-hash/cmsBuilder.git"
+  },
+  "license": "MIT",
+  "author": "Otgonbileg Enkhtaiwan",
+  "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "publishConfig": {
-    "access": "public"
-  },
   "files": [
     "src",
     "README.md"
@@ -15,23 +28,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "next lint"
   },
-  "keywords": [
-    "cms",
-    "nextjs",
-    "framework"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "lucide-react": "latest"
-  },
-  "peerDependencies": {
-    "next": ">=13.0.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
   },
   "devDependencies": {
     "typescript": "latest",
@@ -43,5 +44,13 @@
     "autoprefixer": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest"
+  },
+  "peerDependencies": {
+    "next": ">=13.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
