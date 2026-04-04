@@ -1,13 +1,14 @@
 import React from 'react';
 import { WebsiteDesign, PageDesign } from '../types';
 
-interface CMSPageProps {
+ interface CMSPageProps {
   design: WebsiteDesign;
   componentMap: Record<string, any>;
   route: string;
+  page?: PageDesign; // Optional pre-fetched page for static generation optimization
 }
 
-export const CMSPage: React.FC<CMSPageProps> = ({ design, componentMap, route }) => {
+export const CMSPage: React.FC<CMSPageProps> = ({ design, componentMap, route, page: prefetchedPage }) => {
   if (!design || !design.pages) {
     return (
       <div className="p-20 text-center">
@@ -17,7 +18,7 @@ export const CMSPage: React.FC<CMSPageProps> = ({ design, componentMap, route })
     );
   }
 
-  const page = design.pages.find((p: any) => p.route === route);
+  const page = prefetchedPage || design.pages.find((p: any) => p.route === route);
 
   if (!page) {
     return (

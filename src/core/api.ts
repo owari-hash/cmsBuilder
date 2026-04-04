@@ -7,9 +7,11 @@ class CMSApiClient {
     this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_CMS_API_URL || 'http://localhost:4000/api';
   }
 
-  async getSiteContent(projectName: string): Promise<WebsiteDesign> {
+  async getSiteContent(projectName: string, options?: RequestInit): Promise<WebsiteDesign> {
     const res = await fetch(`${this.baseUrl}/sites/${projectName}/content`, {
-      cache: 'no-store', // Always fetch fresh design in dev/preview
+      cache: options?.cache || 'default',
+      ...({ next: (options as any)?.next || { revalidate: 3600 } } as any),
+      ...options
     });
 
     if (!res.ok) {

@@ -16,13 +16,27 @@ export class ContentService {
     return ContentService.instance;
   }
 
-  async getDesign(): Promise<WebsiteDesign> {
-    return cmsApi.getSiteContent(this.currentProject);
+  async getDesign(options?: RequestInit): Promise<WebsiteDesign> {
+    return cmsApi.getSiteContent(this.currentProject, options);
+  }
+
+  async getAllRoutes(): Promise<{ slug: string[] }[]> {
+    const design = await this.getDesign();
+    return design.pages.map((p) => ({
+      slug: p.route === '/' ? [] : p.route.split('/').filter(Boolean),
+    }));
   }
 
   async getPageByRoute(route: string): Promise<PageDesign | undefined> {
     const design = await this.getDesign();
     return design.pages.find((p) => p.route === route);
+  }
+
+  async getStaticProps(slug?: string[]): Promise<{ design: WebsiteDesign; page: PageDesign | undefined; route: string }> {
+    const route = slug ? '/' + slug.join('/') : '/';
+    const design = await this.getDesign();
+    const page = design.pages.find((p) => p.route === route);
+    return { design, page, route };
   }
 }
 
