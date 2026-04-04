@@ -19,7 +19,7 @@ export {
 
 // Core Engine
 export { CMSPage } from './CMSPage';
-export { RecursiveRenderer } from './RecursiveRenderer.tsx';
+export { RecursiveRenderer } from './RecursiveRenderer';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { createTokenMap, mergeProjectTokens, baseTokens } from './Tokens';
 
