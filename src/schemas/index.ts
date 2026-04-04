@@ -244,4 +244,4 @@ export type TwoColumnProps = z.infer<typeof TwoColumnSchema>;
 export type GridProps = z.infer<typeof GridSchema>;
 export type CardProps = z.infer<typeof CardSchema>;
 export type ContainerProps = z.infer<typeof ContainerSchema>;
-export type ProjectTheme = z.infer<typeof ProjectThemeSchema>;
+export type ProjectThemeType = z.infer<typeof ProjectThemeSchema>;
