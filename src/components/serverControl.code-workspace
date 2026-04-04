@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../serverControl"
+		},
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../clientCmsTemplate"
+		}
+	],
+	"settings": {}
+}

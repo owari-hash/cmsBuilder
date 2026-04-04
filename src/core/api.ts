@@ -1,4 +1,4 @@
-import { WebsiteDesign } from '../types';
+import { WebsiteDesign, ComponentInstance, ComponentNode } from '../types';
 
 class CMSApiClient {
   private baseUrl: string;
@@ -20,6 +20,126 @@ class CMSApiClient {
         URL: ${this.baseUrl}/sites/${projectName}/content 
         Status: ${res.status}
         Response: ${errorText}`);
+    }
+
+    return res.json();
+  }
+
+  // ==========================================
+  // Hybrid Architecture - Component Instances
+  // ==========================================
+
+  async getPageComponents(projectName: string, pageRoute: string): Promise<ComponentInstance[]> {
+    const encodedRoute = encodeURIComponent(pageRoute);
+    const res = await fetch(
+      `${this.baseUrl}/components/instances/${projectName}/${encodedRoute}`,
+      { cache: 'no-store' }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch components for ${pageRoute}: ${res.status}`);
+    }
+
+    return res.json();
+  }
+
+  async getComponentTree(projectName: string, pageRoute: string): Promise<ComponentNode[]> {
+    const encodedRoute = encodeURIComponent(pageRoute);
+    const res = await fetch(
+      `${this.baseUrl}/components/tree/${projectName}/${encodedRoute}`,
+      { cache: 'no-store' }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch component tree for ${pageRoute}: ${res.status}`);
+    }
+
+    return res.json();
+  }
+
+  async createComponentInstance(
+    projectName: string, 
+    data: Omit<ComponentInstance, '_id' | 'instanceId' | 'updatedAt'>
+  ): Promise<ComponentInstance> {
+    const res = await fetch(
+      `${this.baseUrl}/components/instances/${projectName}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Failed to create component: ${error}`);
+    }
+
+    return res.json();
+  }
+
+  async updateComponentInstance(
+    projectName: string,
+    instanceId: string,
+    updates: Partial<ComponentInstance>
+  ): Promise<ComponentInstance> {
+    const res = await fetch(
+      `${this.baseUrl}/components/instances/${projectName}/${instanceId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to update component ${instanceId}: ${res.status}`);
+    }
+
+    return res.json();
+  }
+
+  async deleteComponentInstance(projectName: string, instanceId: string): Promise<void> {
+    const res = await fetch(
+      `${this.baseUrl}/components/instances/${projectName}/${instanceId}`,
+      { method: 'DELETE' }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to delete component ${instanceId}: ${res.status}`);
+    }
+  }
+
+  async reorderComponents(
+    projectName: string,
+    componentOrders: { instanceId: string; order: number }[]
+  ): Promise<{ success: boolean; updated: number }> {
+    const res = await fetch(
+      `${this.baseUrl}/components/reorder/${projectName}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ componentOrders })
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to reorder components: ${res.status}`);
+    }
+
+    return res.json();
+  }
+
+  async getComponentTypes(): Promise<Array<{
+    type: string;
+    category: string;
+    description: string;
+    slots?: string[];
+  }>> {
+    const res = await fetch(`${this.baseUrl}/components/types/registry`);
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch component types: ${res.status}`);
     }
 
     return res.json();
