@@ -151,7 +151,7 @@ export const ComponentInstanceSchema = z.object({
   parentId: z.string().nullable(),         // null = root, else parent's instanceId
   slot: z.string().nullable(),             // null for root, slot name for children
   order: z.number().int().min(0),        // Sort order
-  props: z.record(z.any()),                // Component-specific props
+  props: z.record(z.any(), z.any()),                // Component-specific props
   updatedAt: z.string().datetime().or(z.string()),
 });
 
