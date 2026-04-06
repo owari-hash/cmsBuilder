@@ -12,7 +12,7 @@ interface CMSPageProps {
   design: WebsiteDesign;
   route: string;
   // Flat component instances from API - tree built at render time
-  componentInstances: ComponentInstance[];
+  componentInstances?: ComponentInstance[];
 }
 
 export const CMSPage: React.FC<CMSPageProps> = ({ 
@@ -35,8 +35,15 @@ export const CMSPage: React.FC<CMSPageProps> = ({
   }
 
   // Build component tree from flat instances
-  const componentTree = componentInstances && componentInstances.length > 0 
-    ? buildComponentTree(componentInstances)
+  const normalizedInstances = Array.isArray(componentInstances)
+    ? componentInstances.map((instance) => ({
+        ...instance,
+        componentType: String(instance.componentType || (instance as any).type || '').toLowerCase()
+      }))
+    : [];
+
+  const componentTree = normalizedInstances.length > 0
+    ? buildComponentTree(normalizedInstances)
     : [];
 
   // Generate CSS variables from theme

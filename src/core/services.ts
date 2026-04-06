@@ -1,5 +1,6 @@
 import { cmsApi } from './api';
-import { WebsiteDesign, PageDesign } from '../types';
+import { WebsiteDesign, PageDesign, IndustryModule } from '../types';
+import { getAvailableIndustryModules, getIndustryModule } from '../engine/ComponentRegistry';
 
 export class ContentService {
   private static instance: ContentService;
@@ -22,21 +23,32 @@ export class ContentService {
 
   async getAllRoutes(): Promise<{ slug: string[] }[]> {
     const design = await this.getDesign();
-    return design.pages.map((p) => ({
+    const pages = Array.isArray(design.pages) ? design.pages : [];
+    return pages.map((p) => ({
       slug: p.route === '/' ? [] : p.route.split('/').filter(Boolean),
     }));
   }
 
   async getPageByRoute(route: string): Promise<PageDesign | undefined> {
     const design = await this.getDesign();
-    return design.pages.find((p) => p.route === route);
+    const pages = Array.isArray(design.pages) ? design.pages : [];
+    return pages.find((p) => p.route === route);
   }
 
   async getStaticProps(slug?: string[]): Promise<{ design: WebsiteDesign; page: PageDesign | undefined; route: string }> {
     const route = slug ? '/' + slug.join('/') : '/';
     const design = await this.getDesign();
-    const page = design.pages.find((p) => p.route === route);
+    const pages = Array.isArray(design.pages) ? design.pages : [];
+    const page = pages.find((p) => p.route === route);
     return { design, page, route };
+  }
+
+  getIndustryModules(): IndustryModule[] {
+    return getAvailableIndustryModules();
+  }
+
+  getIndustryFeatureFlags(moduleId: string): string[] {
+    return getIndustryModule(moduleId)?.featureFlags || [];
   }
 }
 

@@ -1,0 +1,6 @@
+{
+  "industry": "blog",
+  "projectName": "blog-site",
+  "pages": ["/", "/posts", "/posts/first"],
+  "requiredFeatures": ["articles", "authors", "taxonomy"]
+}

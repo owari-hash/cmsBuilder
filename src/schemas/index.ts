@@ -187,6 +187,40 @@ export const ProjectThemeSchema = z.object({
   customTokens: z.record(z.string(), z.string()).optional(),
 });
 
+export const WebsiteDesignSchema = z.object({
+  projectName: z.string().min(1),
+  domain: z.string().optional(),
+  theme: ProjectThemeSchema,
+  pages: z.array(z.object({
+    route: z.string(),
+    title: z.string().optional().default('Untitled'),
+    description: z.string().optional(),
+    components: z.array(ComponentNodeSchema).optional().default([])
+  })).optional().default([]),
+  updatedAt: z.string().optional().default(new Date().toISOString())
+});
+
+export const ComponentTypeRegistryItemSchema = z.object({
+  type: z.string().min(1),
+  category: z.enum(['primitive', 'layout', 'section']),
+  description: z.string(),
+  slots: z.array(z.string()).optional(),
+  version: z.string().default('1.0.0'),
+  capabilities: z.array(z.string()).default([]),
+  requiredProps: z.array(z.string()).default([]),
+  deprecations: z.array(z.string()).default([])
+});
+
+export const ApiEnvelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    version: z.string().default('1.0.0'),
+    data: dataSchema
+  });
+
+export const WebsiteDesignEnvelopeSchema = ApiEnvelopeSchema(WebsiteDesignSchema);
+export const ComponentInstancesEnvelopeSchema = ApiEnvelopeSchema(z.array(ComponentInstanceSchema));
+export const ComponentTypesEnvelopeSchema = ApiEnvelopeSchema(z.array(ComponentTypeRegistryItemSchema));
+
 // ==========================================
 // 8. Validation Helpers
 // ==========================================
@@ -234,6 +268,18 @@ export const validateProps = (
   );
   
   return { valid: false, errors, data: undefined };
+};
+
+export const parseApiEnvelope = <T>(
+  schema: z.ZodType<T>,
+  raw: unknown
+): T => {
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    const message = parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ');
+    throw new Error(`API schema validation failed: ${message}`);
+  }
+  return parsed.data;
 };
 
 // ==========================================

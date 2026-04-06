@@ -5,6 +5,7 @@ export { About } from './About';
 export { Footer } from './Footer';
 export { Pagination } from './Pagination';
 export { Button } from './Button';
+export { UnknownComponent } from './UnknownComponent';
 
 // Layout components
 export { TwoColumn } from './layouts/TwoColumn';

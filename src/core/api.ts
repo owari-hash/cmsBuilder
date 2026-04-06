@@ -1,4 +1,10 @@
 import { WebsiteDesign, ComponentInstance, ComponentNode } from '../types';
+import {
+  WebsiteDesignEnvelopeSchema,
+  ComponentInstancesEnvelopeSchema,
+  ComponentTypesEnvelopeSchema,
+  parseApiEnvelope
+} from '../schemas';
 
 class CMSApiClient {
   private baseUrl: string;
@@ -22,7 +28,13 @@ class CMSApiClient {
         Response: ${errorText}`);
     }
 
-    return res.json();
+    const raw = await res.json();
+    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
+      const parsed = parseApiEnvelope(WebsiteDesignEnvelopeSchema, raw);
+      return parsed.data;
+    }
+    const parsedLegacy = parseApiEnvelope(WebsiteDesignEnvelopeSchema, { version: 'legacy', data: raw });
+    return parsedLegacy.data;
   }
 
   // ==========================================
@@ -40,7 +52,13 @@ class CMSApiClient {
       throw new Error(`Failed to fetch components for ${pageRoute}: ${res.status}`);
     }
 
-    return res.json();
+    const raw = await res.json();
+    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
+      const parsed = parseApiEnvelope(ComponentInstancesEnvelopeSchema, raw);
+      return parsed.data;
+    }
+    const parsedLegacy = parseApiEnvelope(ComponentInstancesEnvelopeSchema, { version: 'legacy', data: raw });
+    return parsedLegacy.data;
   }
 
   async getComponentTree(projectName: string, pageRoute: string): Promise<ComponentNode[]> {
@@ -142,7 +160,13 @@ class CMSApiClient {
       throw new Error(`Failed to fetch component types: ${res.status}`);
     }
 
-    return res.json();
+    const raw = await res.json();
+    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
+      const parsed = parseApiEnvelope(ComponentTypesEnvelopeSchema, raw);
+      return parsed.data;
+    }
+    const parsedLegacy = parseApiEnvelope(ComponentTypesEnvelopeSchema, { version: 'legacy', data: raw });
+    return parsedLegacy.data;
   }
 }
 

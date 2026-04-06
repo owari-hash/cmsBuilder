@@ -1,0 +1,6 @@
+{
+  "industry": "service",
+  "projectName": "service-site",
+  "pages": ["/", "/about", "/contact"],
+  "requiredFeatures": ["leadCapture", "appointments"]
+}

@@ -7,7 +7,13 @@
  */
 
 import React from 'react';
-import { RegisteredComponent, ComponentMeta, ComponentCategory } from '../types';
+import {
+  RegisteredComponent,
+  ComponentMeta,
+  ComponentCategory,
+  RegistryComponentType,
+  IndustryModule
+} from '../types';
 
 // Import existing components
 import { Header } from '../components/Header';
@@ -37,7 +43,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'section' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Sticky navigation header with logo, links, and CTA'
+      description: 'Sticky navigation header with logo, links, and CTA',
+      version: '1.0.0',
+      capabilities: ['navigation', 'branding'],
+      requiredProps: ['title'],
+      deprecations: []
     }
   },
   
@@ -46,7 +56,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'section' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Hero section with title, subtitle, buttons, and images'
+      description: 'Hero section with title, subtitle, buttons, and images',
+      version: '1.0.0',
+      capabilities: ['marketing', 'cta'],
+      requiredProps: ['title'],
+      deprecations: []
     }
   },
   
@@ -55,7 +69,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'section' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Content section with title, description, and images'
+      description: 'Content section with title, description, and images',
+      version: '1.0.0',
+      capabilities: ['content'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -64,7 +82,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'section' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Site footer with links and copyright'
+      description: 'Site footer with links and copyright',
+      version: '1.0.0',
+      capabilities: ['navigation', 'legal'],
+      requiredProps: ['copyright'],
+      deprecations: []
     }
   },
   
@@ -78,7 +100,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       category: 'layout' as ComponentCategory,
       acceptsChildren: true,
       slots: ['left', 'right'],
-      description: 'Two-column layout with configurable ratio'
+      description: 'Two-column layout with configurable ratio',
+      version: '1.0.0',
+      capabilities: ['layout'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -88,7 +114,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       category: 'layout' as ComponentCategory,
       acceptsChildren: true,
       slots: ['items'],
-      description: 'CSS Grid container for multiple items'
+      description: 'CSS Grid container for multiple items',
+      version: '1.0.0',
+      capabilities: ['layout'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -98,7 +128,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       category: 'layout' as ComponentCategory,
       acceptsChildren: true,
       slots: ['header', 'content', 'footer'],
-      description: 'Card container with header, content, and footer slots'
+      description: 'Card container with header, content, and footer slots',
+      version: '1.0.0',
+      capabilities: ['layout'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -108,7 +142,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       category: 'layout' as ComponentCategory,
       acceptsChildren: true,
       slots: ['default'],
-      description: 'Max-width container with padding options'
+      description: 'Max-width container with padding options',
+      version: '1.0.0',
+      capabilities: ['layout'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -121,7 +159,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'section' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Page navigation with prev/next and numbered links'
+      description: 'Page navigation with prev/next and numbered links',
+      version: '1.0.0',
+      capabilities: ['navigation'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -130,7 +172,11 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
     meta: {
       category: 'primitive' as ComponentCategory,
       acceptsChildren: false,
-      description: 'Clickable button with multiple variants and sizes'
+      description: 'Clickable button with multiple variants and sizes',
+      version: '1.0.0',
+      capabilities: ['interaction'],
+      requiredProps: [],
+      deprecations: []
     }
   },
   
@@ -185,6 +231,19 @@ export const getAllComponentTypes = (): string[] => {
   return Object.keys(ComponentRegistry);
 };
 
+export const getVersionedComponentTypes = (): RegistryComponentType[] => {
+  return Object.entries(ComponentRegistry).map(([type, config]) => ({
+    type,
+    category: config.meta.category,
+    description: config.meta.description || '',
+    slots: config.meta.slots,
+    version: config.meta.version || '1.0.0',
+    capabilities: config.meta.capabilities || [],
+    requiredProps: config.meta.requiredProps || [],
+    deprecations: config.meta.deprecations || []
+  }));
+};
+
 /**
  * Get components by category
  */
@@ -226,3 +285,42 @@ export const BaseComponents: Record<string, React.FC<any>> = Object.fromEntries(
     config.component
   ])
 );
+
+export const IndustryModules: Record<string, IndustryModule> = {
+  service: {
+    id: 'service',
+    name: 'Service Business',
+    enabledByDefault: true,
+    featureFlags: ['leadCapture', 'appointments'],
+    componentTypes: ['header', 'hero', 'about', 'footer', 'button']
+  },
+  ecommerce: {
+    id: 'ecommerce',
+    name: 'E-commerce',
+    enabledByDefault: false,
+    featureFlags: ['catalog', 'cart', 'checkout'],
+    componentTypes: ['header', 'grid', 'card', 'pagination', 'footer', 'button']
+  },
+  booking: {
+    id: 'booking',
+    name: 'Booking',
+    enabledByDefault: false,
+    featureFlags: ['scheduling', 'availability'],
+    componentTypes: ['header', 'hero', 'container', 'footer', 'button']
+  },
+  blog: {
+    id: 'blog',
+    name: 'Content/Blog',
+    enabledByDefault: false,
+    featureFlags: ['articles', 'authors', 'taxonomy'],
+    componentTypes: ['header', 'about', 'pagination', 'footer']
+  }
+};
+
+export const getIndustryModule = (moduleId: string): IndustryModule | undefined => {
+  return IndustryModules[moduleId];
+};
+
+export const getAvailableIndustryModules = (): IndustryModule[] => {
+  return Object.values(IndustryModules);
+};

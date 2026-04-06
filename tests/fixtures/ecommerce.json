@@ -1,0 +1,6 @@
+{
+  "industry": "ecommerce",
+  "projectName": "shop-site",
+  "pages": ["/", "/products", "/checkout"],
+  "requiredFeatures": ["catalog", "cart", "checkout"]
+}

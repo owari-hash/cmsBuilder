@@ -76,11 +76,26 @@ export interface ComponentMeta {
   acceptsChildren: boolean;
   slots?: string[];  // Defined slot names for layout components
   description?: string;
+  version?: string;
+  capabilities?: string[];
+  requiredProps?: string[];
+  deprecations?: string[];
 }
 
 export interface RegisteredComponent {
   component: React.FC<any>;
   meta: ComponentMeta;
+}
+
+export interface RegistryComponentType {
+  type: string;
+  category: ComponentCategory;
+  description: string;
+  slots?: string[];
+  version: string;
+  capabilities: string[];
+  requiredProps: string[];
+  deprecations: string[];
 }
 
 // ==========================================
@@ -102,6 +117,19 @@ export interface ComponentUpdatePayload {
   parentId?: string | null;
   slot?: string | null;
   order?: number;
+}
+
+export interface ApiEnvelope<T> {
+  version: string;
+  data: T;
+}
+
+export interface IndustryModule {
+  id: string;
+  name: string;
+  enabledByDefault?: boolean;
+  featureFlags: string[];
+  componentTypes: string[];
 }
 
 // ==========================================

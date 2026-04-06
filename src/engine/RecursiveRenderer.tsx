@@ -7,6 +7,7 @@ import React from 'react';
 import { ComponentNode, ProjectTheme, SlotNode } from '../types';
 import { ComponentRegistry, isValidComponent } from './ComponentRegistry';
 import { createTokenMap, mergeProjectTokens } from './Tokens';
+import { UnknownComponent } from '../components/UnknownComponent';
 
 interface RecursiveRendererProps {
   node: ComponentNode;
@@ -38,11 +39,11 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   // Validate component exists
   if (!isValidComponent(node.componentType)) {
     return (
-      <div className="p-4 border-2 border-dashed border-red-300 bg-red-50 text-red-500 rounded">
-        <strong>Unknown Component</strong>
-        <p className="text-sm mt-1">Type: "{node.componentType}"</p>
-        <p className="text-xs mt-2 opacity-70">Instance: {node.instanceId}</p>
-      </div>
+      <UnknownComponent
+        componentType={node.componentType}
+        instanceId={node.instanceId}
+        reason="Component type is not registered in the current framework build."
+      />
     );
   }
 
@@ -59,6 +60,10 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
     __depth: depth,         // For debugging
     __instanceId: node.instanceId // For debugging/editing
   };
+
+  if (!props.children && props.slots && typeof props.slots === 'object') {
+    props.children = props.slots.default || null;
+  }
 
   // Build slot children recursively
   const slots: Record<string, React.ReactNode> = {};

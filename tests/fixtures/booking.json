@@ -1,0 +1,6 @@
+{
+  "industry": "booking",
+  "projectName": "booking-site",
+  "pages": ["/", "/services", "/book"],
+  "requiredFeatures": ["scheduling", "availability"]
+}
