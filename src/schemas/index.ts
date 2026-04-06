@@ -21,6 +21,40 @@ export const ButtonSchema = z.object({
   href: z.string().optional(),
   variant: z.enum(["primary", "secondary", "outline", "ghost"]).default("primary"),
   size: z.enum(["sm", "md", "lg"]).default("md"),
+  type: z.enum(["button", "submit", "reset"]).default("button"),
+  fullWidth: z.boolean().default(false),
+  centered: z.boolean().default(false),
+  centerMode: z.enum(["viewport", "container"]).default("container"),
+  align: z.enum(["left", "center", "right"]).default("left"),
+  className: z.string().optional(),
+  containerClassName: z.string().optional(),
+  style: z.record(z.any(), z.any()).optional(),
+  target: z.string().optional(),
+  rel: z.string().optional(),
+  ariaLabel: z.string().optional(),
+  id: z.string().optional(),
+  disabled: z.boolean().default(false),
+  api: z.object({
+    type: z.string().min(1), // e.g. "login", "register", "custom-action"
+    url: z.string().min(1),
+    method: z.enum(["POST", "PUT", "PATCH", "GET"]).default("POST"),
+    headers: z.record(z.string(), z.string()).optional(),
+    body: z.record(z.any(), z.any()).optional(),
+    bodyType: z.enum(["json", "form"]).default("json"),
+    credentials: z.enum(["omit", "same-origin", "include"]).default("same-origin"),
+    tokenPath: z.string().optional(),
+    tokenStorageKey: z.string().default("auth_token"),
+    redirectTo: z.string().optional(),
+    onSuccess: z.object({
+      strategy: z.enum(["redirect", "reload", "none"]).default("redirect"),
+      message: z.string().optional()
+    }).optional(),
+    onError: z.object({
+      strategy: z.enum(["toast", "alert", "none"]).default("alert"),
+      message: z.string().optional()
+    }).optional()
+  }).optional(),
+  loadingText: z.string().optional(),
 });
 
 // Images
