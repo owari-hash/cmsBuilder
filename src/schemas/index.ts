@@ -34,6 +34,11 @@ export const ButtonSchema = z.object({
   ariaLabel: z.string().optional(),
   id: z.string().optional(),
   disabled: z.boolean().default(false),
+  action: z.object({
+    type: z.enum(["openModal", "closeModal", "toggleModal"]),
+    targetId: z.string().min(1),
+    preventDefault: z.boolean().default(true)
+  }).optional(),
   api: z.object({
     type: z.string().min(1), // e.g. "login", "register", "custom-action"
     url: z.string().min(1),
@@ -105,6 +110,61 @@ export const PaginationSchema = z.object({
   theme: ThemeSchema.default("light"),
 });
 
+export const ModalSchema = z.object({
+  id: z.string().optional(),
+  modalType: z.enum(["basic", "formModal"]).default("basic"),
+  title: z.string().default("Modal Title"),
+  content: z.string().default("Modal content"),
+  openButtonText: z.string().default("Open Modal"),
+  closeButtonText: z.string().default("Close"),
+  confirmButtonText: z.string().optional(),
+  confirmHref: z.string().optional(),
+  theme: ThemeSchema.default("light"),
+  size: z.enum(["sm", "md", "lg", "xl", "full"]).default("md"),
+  centered: z.boolean().default(true),
+  closable: z.boolean().default(true),
+  closeOnBackdrop: z.boolean().default(true),
+  defaultOpen: z.boolean().default(false),
+  showTrigger: z.boolean().default(true),
+  showFooter: z.boolean().default(true),
+  className: z.string().optional(),
+  overlayClassName: z.string().optional(),
+  zIndex: z.number().int().min(1).max(9999).default(50),
+  formLayoutClassName: z.string().default("grid grid-cols-1 gap-4"),
+  formClassName: z.string().optional(),
+  submitButtonText: z.string().default("Submit"),
+  cancelButtonText: z.string().default("Cancel"),
+  closeOnSuccess: z.boolean().default(true),
+  fields: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string().min(1),
+    label: z.string().optional(),
+    type: z.enum(["text", "email", "password", "number", "tel", "url", "textarea"]).default("text"),
+    placeholder: z.string().optional(),
+    required: z.boolean().default(false),
+    defaultValue: z.any().optional(),
+    options: z.array(z.object({
+      label: z.string(),
+      value: z.string()
+    })).optional(),
+    wrapperClassName: z.string().optional(),
+    inputClassName: z.string().optional(),
+    style: z.record(z.any(), z.any()).optional()
+  })).default([]),
+  api: z.object({
+    type: z.string().min(1), // e.g. login/register/custom
+    url: z.string().min(1),
+    method: z.enum(["POST", "PUT", "PATCH", "GET"]).default("POST"),
+    headers: z.record(z.string(), z.string()).optional(),
+    bodyType: z.enum(["json", "form"]).default("json"),
+    credentials: z.enum(["omit", "same-origin", "include"]).default("same-origin"),
+    staticBody: z.record(z.any(), z.any()).optional(),
+    tokenPath: z.string().optional(),
+    tokenStorageKey: z.string().default("auth_token"),
+    redirectTo: z.string().optional()
+  }).optional()
+});
+
 // ==========================================
 // 3. Types Inference
 // ==========================================
@@ -119,6 +179,7 @@ export type HeroProps = z.infer<typeof HeroSchema>;
 export type AboutProps = z.infer<typeof AboutSchema>;
 export type FooterProps = z.infer<typeof FooterSchema>;
 export type PaginationProps = z.infer<typeof PaginationSchema>;
+export type ModalProps = z.infer<typeof ModalSchema>;
 
 // ==========================================
 // 4. Schema Map Registry
@@ -130,6 +191,7 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   about: AboutSchema,
   footer: FooterSchema,
   pagination: PaginationSchema,
+  modal: ModalSchema,
 };
 
 // ==========================================

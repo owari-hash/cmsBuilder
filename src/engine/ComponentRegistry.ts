@@ -22,6 +22,7 @@ import { About } from '../components/About';
 import { Footer } from '../components/Footer';
 import { Pagination } from '../components/Pagination';
 import { Button } from '../components/Button';
+import { Modal } from '../components/Modal';
 
 // Layout components
 import { TwoColumn } from '../components/layouts/TwoColumn';
@@ -175,6 +176,19 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       description: 'Clickable button with multiple variants and sizes',
       version: '1.0.0',
       capabilities: ['interaction'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  modal: {
+    component: Modal,
+    meta: {
+      category: 'primitive' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Customizable modal dialog with overlay and actions',
+      version: '1.0.0',
+      capabilities: ['interaction', 'overlay', 'dialog'],
       requiredProps: [],
       deprecations: []
     }

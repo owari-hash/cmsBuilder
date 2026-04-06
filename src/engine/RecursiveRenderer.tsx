@@ -6,7 +6,7 @@
 import React from 'react';
 import { ComponentNode, ProjectTheme, SlotNode } from '../types';
 import { ComponentRegistry, isValidComponent } from './ComponentRegistry';
-import { createTokenMap, mergeProjectTokens } from './Tokens';
+import { mergeProjectTokens } from './Tokens';
 import { UnknownComponent } from '../components/UnknownComponent';
 
 interface RecursiveRendererProps {
@@ -49,14 +49,13 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
 
   const { component: Component, meta } = ComponentRegistry[node.componentType.toLowerCase()];
   
-  // Build tokens from project theme
+  // Build merged token values from project theme (serializable only)
   const mergedTokens = mergeProjectTokens(projectTheme);
-  const tokens = createTokenMap(mergedTokens);
   
   // Build props with tokens injected
   const props: Record<string, any> = {
     ...node.props,
-    __tokens: tokens,       // Available if component needs direct token access
+    __tokens: mergedTokens, // Keep serializable token map only
     __depth: depth,         // For debugging
     __instanceId: node.instanceId // For debugging/editing
   };

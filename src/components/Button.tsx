@@ -106,6 +106,19 @@ export const Button: React.FC<ButtonToken> = (props) => {
       return;
     }
 
+    if (props.action) {
+      if (props.action.preventDefault) e.preventDefault();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('cms:modal', {
+          detail: {
+            type: props.action.type,
+            targetId: props.action.targetId
+          }
+        }));
+      }
+      return;
+    }
+
     if (!props.api) return;
 
     e.preventDefault();
