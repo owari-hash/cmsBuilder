@@ -1,40 +1,50 @@
 import { WebsiteDesign, ComponentInstance, ComponentNode } from '../types';
 import {
-  WebsiteDesignEnvelopeSchema,
-  ComponentInstancesEnvelopeSchema,
-  ComponentTypesEnvelopeSchema,
-  parseApiEnvelope
+  ComponentSchemas
 } from '../schemas';
 
 class CMSApiClient {
   private baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_CMS_API_URL || 'http://localhost:4000/api';
+    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_CMS_API_URL || 'http://localhost:4000/api/v2';
+  }
+
+  private async parseEnvelope<T = any>(res: Response): Promise<T> {
+    const raw = await res.json();
+    if (raw && typeof raw === 'object' && 'version' in raw && 'data' in raw) {
+      return (raw as any).data as T;
+    }
+    return raw as T;
+  }
+
+  private async handleError(res: Response, context: string): Promise<never> {
+    const text = await res.text().catch(() => 'No error body');
+    throw new Error(`${context}. Status: ${res.status}. Response: ${text}`);
+  }
+
+  private projectHeaders(projectName: string, headers?: Record<string, string>) {
+    return {
+      'x-project-id': projectName,
+      ...headers
+    };
   }
 
   async getSiteContent(projectName: string, options?: RequestInit): Promise<WebsiteDesign> {
-    const res = await fetch(`${this.baseUrl}/sites/${projectName}/content`, {
+    const res = await fetch(`${this.baseUrl}/core/designs/${projectName}`, {
       cache: options?.cache || 'default',
       ...({ next: (options as any)?.next || { revalidate: 3600 } } as any),
       ...options
     });
 
     if (!res.ok) {
-      const errorText = await res.text().catch(() => 'No error body');
-      throw new Error(`Framework Fetch Error: Failed to load project "${projectName}". 
-        URL: ${this.baseUrl}/sites/${projectName}/content 
-        Status: ${res.status}
-        Response: ${errorText}`);
+      return this.handleError(res, `Failed to load project "${projectName}" design`);
     }
 
-    const raw = await res.json();
-    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
-      const parsed = parseApiEnvelope(WebsiteDesignEnvelopeSchema, raw);
-      return parsed.data;
-    }
-    const parsedLegacy = parseApiEnvelope(WebsiteDesignEnvelopeSchema, { version: 'legacy', data: raw });
-    return parsedLegacy.data;
+    const data = await this.parseEnvelope<any>(res);
+    if (data && data.design) return data.design as WebsiteDesign;
+    if (data && data.projectName) return data as WebsiteDesign;
+    throw new Error(`Invalid design payload for "${projectName}"`);
   }
 
   // ==========================================
@@ -43,57 +53,50 @@ class CMSApiClient {
 
   async getPageComponents(projectName: string, pageRoute: string): Promise<ComponentInstance[]> {
     const encodedRoute = encodeURIComponent(pageRoute);
-    const res = await fetch(
-      `${this.baseUrl}/components/instances/${projectName}/${encodedRoute}`,
-      { cache: 'no-store' }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components?pageRoute=${encodedRoute}`, {
+      cache: 'no-store',
+      headers: this.projectHeaders(projectName)
+    });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch components for ${pageRoute}: ${res.status}`);
+      return this.handleError(res, `Failed to fetch components for ${pageRoute}`);
     }
 
-    const raw = await res.json();
-    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
-      const parsed = parseApiEnvelope(ComponentInstancesEnvelopeSchema, raw);
-      return parsed.data;
-    }
-    const parsedLegacy = parseApiEnvelope(ComponentInstancesEnvelopeSchema, { version: 'legacy', data: raw });
-    return parsedLegacy.data;
+    const data = await this.parseEnvelope<any>(res);
+    return (data.components || data || []) as ComponentInstance[];
   }
 
   async getComponentTree(projectName: string, pageRoute: string): Promise<ComponentNode[]> {
     const encodedRoute = encodeURIComponent(pageRoute);
-    const res = await fetch(
-      `${this.baseUrl}/components/tree/${projectName}/${encodedRoute}`,
-      { cache: 'no-store' }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components/tree?pageRoute=${encodedRoute}`, {
+      cache: 'no-store',
+      headers: this.projectHeaders(projectName)
+    });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch component tree for ${pageRoute}: ${res.status}`);
+      return this.handleError(res, `Failed to fetch component tree for ${pageRoute}`);
     }
 
-    return res.json();
+    const data = await this.parseEnvelope<any>(res);
+    return (data.components || data || []) as ComponentNode[];
   }
 
   async createComponentInstance(
     projectName: string, 
     data: Omit<ComponentInstance, '_id' | 'instanceId' | 'updatedAt'>
   ): Promise<ComponentInstance> {
-    const res = await fetch(
-      `${this.baseUrl}/components/instances/${projectName}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components`, {
+      method: 'POST',
+      headers: this.projectHeaders(projectName, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(data)
+    });
 
     if (!res.ok) {
-      const error = await res.text();
-      throw new Error(`Failed to create component: ${error}`);
+      return this.handleError(res, 'Failed to create component');
     }
 
-    return res.json();
+    const parsed = await this.parseEnvelope<any>(res);
+    return (parsed.component || parsed) as ComponentInstance;
   }
 
   async updateComponentInstance(
@@ -101,30 +104,28 @@ class CMSApiClient {
     instanceId: string,
     updates: Partial<ComponentInstance>
   ): Promise<ComponentInstance> {
-    const res = await fetch(
-      `${this.baseUrl}/components/instances/${projectName}/${instanceId}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components/${instanceId}`, {
+      method: 'PATCH',
+      headers: this.projectHeaders(projectName, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updates)
+    });
 
     if (!res.ok) {
-      throw new Error(`Failed to update component ${instanceId}: ${res.status}`);
+      return this.handleError(res, `Failed to update component ${instanceId}`);
     }
 
-    return res.json();
+    const parsed = await this.parseEnvelope<any>(res);
+    return (parsed.component || parsed) as ComponentInstance;
   }
 
   async deleteComponentInstance(projectName: string, instanceId: string): Promise<void> {
-    const res = await fetch(
-      `${this.baseUrl}/components/instances/${projectName}/${instanceId}`,
-      { method: 'DELETE' }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components/${instanceId}`, {
+      method: 'DELETE',
+      headers: this.projectHeaders(projectName)
+    });
 
     if (!res.ok) {
-      throw new Error(`Failed to delete component ${instanceId}: ${res.status}`);
+      return this.handleError(res, `Failed to delete component ${instanceId}`);
     }
   }
 
@@ -132,20 +133,21 @@ class CMSApiClient {
     projectName: string,
     componentOrders: { instanceId: string; order: number }[]
   ): Promise<{ success: boolean; updated: number }> {
-    const res = await fetch(
-      `${this.baseUrl}/components/reorder/${projectName}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ componentOrders })
-      }
-    );
+    const res = await fetch(`${this.baseUrl}/core/components/reorder`, {
+      method: 'POST',
+      headers: this.projectHeaders(projectName, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ instances: componentOrders })
+    });
 
     if (!res.ok) {
-      throw new Error(`Failed to reorder components: ${res.status}`);
+      return this.handleError(res, 'Failed to reorder components');
     }
 
-    return res.json();
+    const parsed = await this.parseEnvelope<any>(res);
+    return {
+      success: Boolean(parsed.success),
+      updated: componentOrders.length
+    };
   }
 
   async getComponentTypes(): Promise<Array<{
@@ -154,19 +156,12 @@ class CMSApiClient {
     description: string;
     slots?: string[];
   }>> {
-    const res = await fetch(`${this.baseUrl}/components/types/registry`);
-    
-    if (!res.ok) {
-      throw new Error(`Failed to fetch component types: ${res.status}`);
-    }
-
-    const raw = await res.json();
-    if (raw && typeof raw === 'object' && 'data' in raw && 'version' in raw) {
-      const parsed = parseApiEnvelope(ComponentTypesEnvelopeSchema, raw);
-      return parsed.data;
-    }
-    const parsedLegacy = parseApiEnvelope(ComponentTypesEnvelopeSchema, { version: 'legacy', data: raw });
-    return parsedLegacy.data;
+    return Object.keys(ComponentSchemas).map((key) => ({
+      type: key,
+      category: ['twocolumn', 'grid', 'card', 'container'].includes(key) ? 'layout' : 'section',
+      description: `${key} component`,
+      slots: []
+    }));
   }
 }
 
