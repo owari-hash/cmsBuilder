@@ -25,6 +25,13 @@ import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Chatbot } from '../components/Chatbot';
 import { Livechat } from '../components/Livechat';
+import { Services } from '../components/Services';
+import { Rental } from '../components/Rental';
+import { ContactSection } from '../components/ContactSection';
+import { TextSection } from '../components/TextSection';
+import { NewsSection } from '../components/NewsSection';
+import { JobsSection } from '../components/JobsSection';
+import { ContactFormSection } from '../components/ContactFormSection';
 
 // Layout components
 import { TwoColumn } from '../components/layouts/TwoColumn';
@@ -89,6 +96,97 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       version: '1.0.0',
       capabilities: ['navigation', 'legal'],
       requiredProps: ['copyright'],
+      deprecations: []
+    }
+  },
+
+  services: {
+    component: Services,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Service or feature grid with title and linkable items',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  contact: {
+    component: ContactSection,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Contact details block (phone, email, address, hours, optional map iframe URL)',
+      version: '1.0.0',
+      capabilities: ['content'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  text: {
+    component: TextSection,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Title plus body text or HTML (content, body, or text field)',
+      version: '1.0.0',
+      capabilities: ['content'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  news: {
+    component: NewsSection,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'News or article teasers with optional image and link',
+      version: '1.0.0',
+      capabilities: ['content'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  rental: {
+    component: Rental,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Rental or listing cards (same item shape as services, supports images)',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  jobs: {
+    component: JobsSection,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Job openings list with apply links',
+      version: '1.0.0',
+      capabilities: ['content'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  'contact-form': {
+    component: ContactFormSection,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Inline contact form with configurable fields and optional API submit',
+      version: '1.0.0',
+      capabilities: ['interaction', 'leadCapture'],
+      requiredProps: [],
       deprecations: []
     }
   },

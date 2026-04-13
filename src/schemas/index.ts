@@ -179,6 +179,154 @@ export const LivechatSchema = z.object({
   launcherClassName: z.string().optional()
 });
 
+/** Shared list-style item (services, rental, etc.) */
+const LegacyListItemSchema = z
+  .object({
+    title: z.string().optional(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    href: z.string().optional(),
+    price: z.string().optional(),
+    iconUrl: z.string().optional(),
+    icon: z.string().optional(),
+    imageUrl: z.string().optional(),
+    image: ImageSchema.optional(),
+  })
+  .passthrough();
+
+export const ServicesSchema = z
+  .object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    items: z.array(LegacyListItemSchema).optional().default([]),
+    align: AlignSchema.default("left"),
+    theme: ThemeSchema.default("light"),
+    spacing: SpacingSchema.default("md"),
+  })
+  .passthrough();
+
+export const RentalSchema = ServicesSchema;
+
+export const ContactSectionSchema = z
+  .object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().optional(),
+    address: z.string().optional(),
+    hours: z.string().optional(),
+    mapUrl: z.string().optional(),
+    align: AlignSchema.default("left"),
+    theme: ThemeSchema.default("light"),
+  })
+  .passthrough();
+
+/** Plain text / WYSIWYG body — legacy may use `content`, `body`, or `text` */
+export const TextSectionSchema = z
+  .object({
+    title: z.string().optional(),
+    content: z.string().optional(),
+    body: z.string().optional(),
+    text: z.string().optional(),
+    align: AlignSchema.default("left"),
+    theme: ThemeSchema.default("light"),
+    spacing: SpacingSchema.default("md"),
+  })
+  .passthrough();
+
+const NewsItemSchema = z
+  .object({
+    title: z.string().optional(),
+    excerpt: z.string().optional(),
+    summary: z.string().optional(),
+    href: z.string().optional(),
+    date: z.string().optional(),
+    publishedAt: z.string().optional(),
+    image: ImageSchema.optional(),
+    imageUrl: z.string().optional(),
+  })
+  .passthrough();
+
+export const NewsSchema = z
+  .object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    items: z.array(NewsItemSchema).optional().default([]),
+    align: AlignSchema.default("left"),
+    theme: ThemeSchema.default("light"),
+    spacing: SpacingSchema.default("md"),
+  })
+  .passthrough();
+
+const JobItemSchema = z
+  .object({
+    title: z.string().optional(),
+    department: z.string().optional(),
+    location: z.string().optional(),
+    employmentType: z.string().optional(),
+    type: z.string().optional(),
+    href: z.string().optional(),
+    postedAt: z.string().optional(),
+    date: z.string().optional(),
+  })
+  .passthrough();
+
+export const JobsSchema = z
+  .object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    items: z.array(JobItemSchema).optional().default([]),
+    align: AlignSchema.default("left"),
+    theme: ThemeSchema.default("light"),
+    spacing: SpacingSchema.default("md"),
+  })
+  .passthrough();
+
+const ContactFormFieldSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  label: z.string().optional(),
+  type: z.enum(["text", "email", "password", "number", "tel", "url", "textarea"]).default("text"),
+  placeholder: z.string().optional(),
+  required: z.boolean().default(false),
+  defaultValue: z.any().optional(),
+  options: z
+    .array(
+      z.object({
+        label: z.string(),
+        value: z.string(),
+      })
+    )
+    .optional(),
+  wrapperClassName: z.string().optional(),
+  inputClassName: z.string().optional(),
+  style: z.record(z.any(), z.any()).optional(),
+});
+
+export const ContactFormSchema = z
+  .object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    submitButtonText: z.string().default("Send"),
+    theme: ThemeSchema.default("light"),
+    fields: z.array(ContactFormFieldSchema).default([]),
+    api: z
+      .object({
+        type: z.string().min(1),
+        url: z.string().min(1),
+        method: z.enum(["POST", "PUT", "PATCH", "GET"]).default("POST"),
+        headers: z.record(z.string(), z.string()).optional(),
+        bodyType: z.enum(["json", "form"]).default("json"),
+        credentials: z.enum(["omit", "same-origin", "include"]).default("same-origin"),
+        staticBody: z.record(z.any(), z.any()).optional(),
+        tokenPath: z.string().optional(),
+        tokenStorageKey: z.string().default("auth_token"),
+        redirectTo: z.string().optional(),
+      })
+      .optional(),
+  })
+  .passthrough();
+
 export const ModalSchema = z.object({
   id: z.string().optional(),
   modalType: z.enum(["basic", "formModal"]).default("basic"),
@@ -251,6 +399,13 @@ export type PaginationProps = z.infer<typeof PaginationSchema>;
 export type ChatbotProps = z.infer<typeof ChatbotSchema>;
 export type LivechatProps = z.infer<typeof LivechatSchema>;
 export type ModalProps = z.infer<typeof ModalSchema>;
+export type ServicesProps = z.infer<typeof ServicesSchema>;
+export type RentalProps = z.infer<typeof RentalSchema>;
+export type ContactSectionProps = z.infer<typeof ContactSectionSchema>;
+export type TextSectionProps = z.infer<typeof TextSectionSchema>;
+export type NewsProps = z.infer<typeof NewsSchema>;
+export type JobsProps = z.infer<typeof JobsSchema>;
+export type ContactFormProps = z.infer<typeof ContactFormSchema>;
 
 // ==========================================
 // 4. Schema Map Registry
@@ -265,6 +420,13 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   chatbot: ChatbotSchema,
   livechat: LivechatSchema,
   modal: ModalSchema,
+  services: ServicesSchema,
+  contact: ContactSectionSchema,
+  text: TextSectionSchema,
+  news: NewsSchema,
+  rental: RentalSchema,
+  jobs: JobsSchema,
+  "contact-form": ContactFormSchema,
 };
 
 // ==========================================

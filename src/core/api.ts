@@ -93,6 +93,22 @@ class CMSApiClient {
     return (data.components || data || []) as ComponentNode[];
   }
 
+  /** Registry-aligned types for admin pickers (`allowedComponentTypes.js` on server). */
+  async getContentAdminComponentTypes(
+    projectName: string,
+    bearerToken: string
+  ): Promise<Array<{ type: string; category: string }>> {
+    const res = await fetch(`${this.baseUrl}/content-admin/component-types`, {
+      cache: 'no-store',
+      headers: this.contentAdminReadHeaders(projectName, bearerToken)
+    });
+    if (!res.ok) {
+      return this.handleError(res, 'Content-admin component-types failed');
+    }
+    const data = await this.parseEnvelope<any>(res);
+    return (data.components || data || []) as Array<{ type: string; category: string }>;
+  }
+
   /**
    * Content-only updates (client-admin / editor). Merges whitelisted text fields into `props`.
    */
@@ -339,9 +355,11 @@ class CMSApiClient {
     description: string;
     slots?: string[];
   }>> {
+    const layouts = new Set(['twocolumn', 'grid', 'card', 'container']);
+    const primitives = new Set(['button', 'modal', 'chatbot', 'livechat']);
     return Object.keys(ComponentSchemas).map((key) => ({
       type: key,
-      category: ['twocolumn', 'grid', 'card', 'container'].includes(key) ? 'layout' : 'section',
+      category: layouts.has(key) ? 'layout' : primitives.has(key) ? 'primitive' : 'section',
       description: `${key} component`,
       slots: []
     }));

@@ -9,6 +9,13 @@ export { UnknownComponent } from './UnknownComponent';
 export { Modal } from './Modal';
 export { Chatbot } from './Chatbot';
 export { Livechat } from './Livechat';
+export { Services } from './Services';
+export { Rental } from './Rental';
+export { ContactSection } from './ContactSection';
+export { TextSection } from './TextSection';
+export { NewsSection } from './NewsSection';
+export { JobsSection } from './JobsSection';
+export { ContactFormSection } from './ContactFormSection';
 
 // Layout components
 export { TwoColumn } from './layouts/TwoColumn';
