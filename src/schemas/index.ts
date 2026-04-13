@@ -68,6 +68,13 @@ export const ImageSchema = z.object({
   alt: z.string().optional(),
 });
 
+const ChatPositionSchema = z.enum(["bottom-right", "bottom-left"]);
+const ChatStatusSchema = z.enum(["online", "away", "offline"]);
+const ChatMessageSchema = z.object({
+  sender: z.enum(["bot", "agent", "user"]),
+  text: z.string().min(1)
+});
+
 // ==========================================
 // 2. Component-Specific Schemas
 // ==========================================
@@ -129,6 +136,47 @@ export const FooterSchema = z.object({
 
 export const PaginationSchema = z.object({
   theme: ThemeSchema.default("light"),
+});
+
+export const ChatbotSchema = z.object({
+  title: z.string().default("Assistant"),
+  welcomeMessage: z.string().default("Hi! How can I help you today?"),
+  placeholder: z.string().default("Type your message..."),
+  sendButtonText: z.string().default("Send"),
+  launcherLabel: z.string().default("Chat"),
+  position: ChatPositionSchema.default("bottom-right"),
+  theme: ThemeSchema.default("primary"),
+  defaultOpen: z.boolean().default(false),
+  showTimestamp: z.boolean().default(false),
+  quickReplies: z.array(z.string().min(1)).default([]),
+  botReplies: z.array(z.string().min(1)).default([
+    "Thanks for your message! Our team will follow up shortly."
+  ]),
+  initialMessages: z.array(ChatMessageSchema).default([]),
+  className: z.string().optional(),
+  panelClassName: z.string().optional(),
+  launcherClassName: z.string().optional()
+});
+
+export const LivechatSchema = z.object({
+  title: z.string().default("Live Support"),
+  subtitle: z.string().default("Typically replies in a few minutes"),
+  agentName: z.string().default("Support Team"),
+  agentAvatarUrl: z.string().optional(),
+  agentStatus: ChatStatusSchema.default("online"),
+  welcomeMessage: z.string().default("Hi! A live agent is ready to help."),
+  placeholder: z.string().default("Write a message..."),
+  sendButtonText: z.string().default("Send"),
+  launcherLabel: z.string().default("Live Chat"),
+  position: ChatPositionSchema.default("bottom-right"),
+  theme: ThemeSchema.default("secondary"),
+  defaultOpen: z.boolean().default(false),
+  showTimestamp: z.boolean().default(true),
+  offlineMessage: z.string().default("We are currently offline. Leave a message and we will get back to you."),
+  initialMessages: z.array(ChatMessageSchema).default([]),
+  className: z.string().optional(),
+  panelClassName: z.string().optional(),
+  launcherClassName: z.string().optional()
 });
 
 export const ModalSchema = z.object({
@@ -200,6 +248,8 @@ export type HeroProps = z.infer<typeof HeroSchema>;
 export type AboutProps = z.infer<typeof AboutSchema>;
 export type FooterProps = z.infer<typeof FooterSchema>;
 export type PaginationProps = z.infer<typeof PaginationSchema>;
+export type ChatbotProps = z.infer<typeof ChatbotSchema>;
+export type LivechatProps = z.infer<typeof LivechatSchema>;
 export type ModalProps = z.infer<typeof ModalSchema>;
 
 // ==========================================
@@ -212,6 +262,8 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   about: AboutSchema,
   footer: FooterSchema,
   pagination: PaginationSchema,
+  chatbot: ChatbotSchema,
+  livechat: LivechatSchema,
   modal: ModalSchema,
 };
 

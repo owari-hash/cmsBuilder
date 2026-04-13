@@ -7,6 +7,8 @@ export { Pagination } from './Pagination';
 export { Button } from './Button';
 export { UnknownComponent } from './UnknownComponent';
 export { Modal } from './Modal';
+export { Chatbot } from './Chatbot';
+export { Livechat } from './Livechat';
 
 // Layout components
 export { TwoColumn } from './layouts/TwoColumn';

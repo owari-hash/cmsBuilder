@@ -23,6 +23,8 @@ import { Footer } from '../components/Footer';
 import { Pagination } from '../components/Pagination';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
+import { Chatbot } from '../components/Chatbot';
+import { Livechat } from '../components/Livechat';
 
 // Layout components
 import { TwoColumn } from '../components/layouts/TwoColumn';
@@ -189,6 +191,32 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
       description: 'Customizable modal dialog with overlay and actions',
       version: '1.0.0',
       capabilities: ['interaction', 'overlay', 'dialog'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  chatbot: {
+    component: Chatbot,
+    meta: {
+      category: 'primitive' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Floating chatbot widget with local UI messages and quick replies',
+      version: '1.0.0',
+      capabilities: ['interaction', 'support', 'chat'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  livechat: {
+    component: Livechat,
+    meta: {
+      category: 'primitive' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Floating live chat widget with agent status and local message flow',
+      version: '1.0.0',
+      capabilities: ['interaction', 'support', 'livechat'],
       requiredProps: [],
       deprecations: []
     }
