@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo, useState } from 'react';
 import { LivechatSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
