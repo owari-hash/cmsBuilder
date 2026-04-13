@@ -30,6 +30,150 @@ class CMSApiClient {
     };
   }
 
+  private contentAdminHeaders(
+    projectName: string,
+    bearerToken: string,
+    extra?: Record<string, string>
+  ): Record<string, string> {
+    return this.projectHeaders(projectName, {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${bearerToken}`,
+      ...extra
+    });
+  }
+
+  private contentAdminReadHeaders(
+    projectName: string,
+    bearerToken: string
+  ): Record<string, string> {
+    return this.projectHeaders(projectName, {
+      Authorization: `Bearer ${bearerToken}`
+    });
+  }
+
+  /** List component instances for editing (content-admin API). */
+  async getContentAdminBlocks(
+    projectName: string,
+    bearerToken: string,
+    pageRoute?: string
+  ): Promise<ComponentInstance[]> {
+    const q =
+      pageRoute !== undefined && pageRoute !== ''
+        ? `?pageRoute=${encodeURIComponent(pageRoute)}`
+        : '';
+    const res = await fetch(`${this.baseUrl}/content-admin/blocks${q}`, {
+      cache: 'no-store',
+      headers: this.contentAdminReadHeaders(projectName, bearerToken)
+    });
+    if (!res.ok) {
+      return this.handleError(res, 'Content-admin blocks list failed');
+    }
+    const data = await this.parseEnvelope<any>(res);
+    return (data.components || data || []) as ComponentInstance[];
+  }
+
+  /** Page component tree for editing (content-admin API). */
+  async getContentAdminTree(
+    projectName: string,
+    pageRoute: string,
+    bearerToken: string
+  ): Promise<ComponentNode[]> {
+    const encodedRoute = encodeURIComponent(pageRoute);
+    const res = await fetch(
+      `${this.baseUrl}/content-admin/blocks/tree?pageRoute=${encodedRoute}`,
+      {
+        cache: 'no-store',
+        headers: this.contentAdminReadHeaders(projectName, bearerToken)
+      }
+    );
+    if (!res.ok) {
+      return this.handleError(res, `Content-admin tree failed for ${pageRoute}`);
+    }
+    const data = await this.parseEnvelope<any>(res);
+    return (data.components || data || []) as ComponentNode[];
+  }
+
+  /**
+   * Content-only updates (client-admin / editor). Merges whitelisted text fields into `props`.
+   */
+  async postContentAdminText(
+    projectName: string,
+    instanceId: string,
+    fields: Record<string, string>,
+    bearerToken: string
+  ): Promise<ComponentInstance> {
+    const res = await fetch(
+      `${this.baseUrl}/content-admin/blocks/${encodeURIComponent(instanceId)}/text`,
+      {
+        method: 'POST',
+        headers: this.contentAdminHeaders(projectName, bearerToken),
+        body: JSON.stringify({ fields })
+      }
+    );
+    if (!res.ok) {
+      return this.handleError(res, `Content-admin text update failed for ${instanceId}`);
+    }
+    const parsed = await this.parseEnvelope<any>(res);
+    return (parsed.component || parsed) as ComponentInstance;
+  }
+
+  /**
+   * Set or append `props.images` from URLs (no file upload).
+   */
+  async postContentAdminImages(
+    projectName: string,
+    instanceId: string,
+    payload: { images: Array<{ url: string; alt?: string }>; mode?: 'replace' | 'append' },
+    bearerToken: string
+  ): Promise<ComponentInstance> {
+    const res = await fetch(
+      `${this.baseUrl}/content-admin/blocks/${encodeURIComponent(instanceId)}/images`,
+      {
+        method: 'POST',
+        headers: this.contentAdminHeaders(projectName, bearerToken),
+        body: JSON.stringify({
+          images: payload.images,
+          mode: payload.mode === 'append' ? 'append' : 'replace'
+        })
+      }
+    );
+    if (!res.ok) {
+      return this.handleError(res, `Content-admin images update failed for ${instanceId}`);
+    }
+    const parsed = await this.parseEnvelope<any>(res);
+    return (parsed.component || parsed) as ComponentInstance;
+  }
+
+  /**
+   * Media URLs (`kind: "image"` only for now); merges into `props.images`.
+   */
+  async postContentAdminMedia(
+    projectName: string,
+    instanceId: string,
+    payload: {
+      items: Array<{ kind: 'image'; url: string; alt?: string }>;
+      mode?: 'replace' | 'append';
+    },
+    bearerToken: string
+  ): Promise<ComponentInstance> {
+    const res = await fetch(
+      `${this.baseUrl}/content-admin/blocks/${encodeURIComponent(instanceId)}/media`,
+      {
+        method: 'POST',
+        headers: this.contentAdminHeaders(projectName, bearerToken),
+        body: JSON.stringify({
+          items: payload.items,
+          mode: payload.mode === 'replace' ? 'replace' : 'append'
+        })
+      }
+    );
+    if (!res.ok) {
+      return this.handleError(res, `Content-admin media update failed for ${instanceId}`);
+    }
+    const parsed = await this.parseEnvelope<any>(res);
+    return (parsed.component || parsed) as ComponentInstance;
+  }
+
   async getSiteContent(projectName: string, options?: RequestInit): Promise<WebsiteDesign> {
     const res = await fetch(`${this.baseUrl}/core/designs/${projectName}`, {
       cache: options?.cache || 'default',
