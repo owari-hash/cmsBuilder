@@ -107,7 +107,16 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   try {
     const inner = <Component {...props} />;
     if (!canvasLayout) {
-      return inner;
+      return (
+        <div
+          className="cms-builder-flow-root"
+          data-instance-id={node.instanceId}
+          data-cms-flow="1"
+          style={{ display: 'contents' }}
+        >
+          {inner}
+        </div>
+      );
     }
     const left = canvasAnchorGlobal
       ? canvasLayout.x - canvasAnchorGlobal.x
