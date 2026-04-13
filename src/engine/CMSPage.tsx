@@ -7,6 +7,7 @@ import React from 'react';
 import { WebsiteDesign, ComponentInstance } from '../types';
 import { RecursiveRenderer, buildComponentTree } from './RecursiveRenderer';
 import { generateCSSVariables } from './Tokens';
+import { computeCanvasStageMinHeight, pageHasCanvasLayout } from './canvasLayout';
 
 interface CMSPageProps {
   design: WebsiteDesign;
@@ -52,6 +53,9 @@ export const CMSPage: React.FC<CMSPageProps> = ({
   // Check if we have any components to render
   const hasComponents = componentTree && componentTree.length > 0;
 
+  const useCanvasStage = pageHasCanvasLayout(normalizedInstances);
+  const canvasStageMinHeight = useCanvasStage ? computeCanvasStageMinHeight(normalizedInstances) : undefined;
+
   return (
     <div 
       className={design.theme.darkMode ? 'dark' : ''} 
@@ -60,7 +64,10 @@ export const CMSPage: React.FC<CMSPageProps> = ({
       data-route={route}
     >
       <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <main>
+        <main
+          className={useCanvasStage ? 'relative w-full' : undefined}
+          style={useCanvasStage && canvasStageMinHeight !== undefined ? { minHeight: canvasStageMinHeight } : undefined}
+        >
           {!hasComponents ? (
             <div className="p-20 text-center">
               <h2 className="text-xl font-semibold opacity-50">Empty Page</h2>
@@ -74,6 +81,7 @@ export const CMSPage: React.FC<CMSPageProps> = ({
                 key={`${node.instanceId}-${index}`}
                 node={node}
                 projectTheme={design.theme}
+                canvasAnchorGlobal={null}
               />
             ))
           )}

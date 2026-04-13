@@ -8,12 +8,18 @@ import { ComponentNode, ProjectTheme, SlotNode } from '../types';
 import { ComponentRegistry, isValidComponent } from './ComponentRegistry';
 import { mergeProjectTokens } from './Tokens';
 import { UnknownComponent } from '../components/UnknownComponent';
+import { omitCanvasLayout, parseCanvasLayout } from './canvasLayout';
 
 interface RecursiveRendererProps {
   node: ComponentNode;
   projectTheme: ProjectTheme;
   depth?: number;
   maxDepth?: number;
+  /**
+   * Global `_canvas` (x,y) of the nearest ancestor that uses canvas positioning.
+   * Used so nested nodes share the same coordinate space as the superadmin canvas.
+   */
+  canvasAnchorGlobal?: { x: number; y: number } | null;
 }
 
 /**
@@ -23,7 +29,8 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   node,
   projectTheme,
   depth = 0,
-  maxDepth = 10
+  maxDepth = 10,
+  canvasAnchorGlobal = null,
 }) => {
   // Safety: prevent infinite recursion
   if (depth > maxDepth) {
@@ -48,16 +55,20 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   }
 
   const { component: Component, meta } = ComponentRegistry[node.componentType.toLowerCase()];
-  
+
+  const canvasLayout = parseCanvasLayout(node.props as Record<string, unknown>);
+
   // Build merged token values from project theme (serializable only)
   const mergedTokens = mergeProjectTokens(projectTheme);
-  
-  // Build props with tokens injected
+
+  const propsWithoutCanvas = omitCanvasLayout({ ...(node.props || {}) } as Record<string, unknown>);
+
+  // Build props with tokens injected (`_canvas` is layout-only, not passed to section components)
   const props: Record<string, any> = {
-    ...node.props,
+    ...propsWithoutCanvas,
     __tokens: mergedTokens, // Keep serializable token map only
-    __depth: depth,         // For debugging
-    __instanceId: node.instanceId // For debugging/editing
+    __depth: depth, // For debugging
+    __instanceId: node.instanceId, // For debugging/editing
   };
 
   if (!props.children && props.slots && typeof props.slots === 'object') {
@@ -67,6 +78,11 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   // Build slot children recursively
   const slots: Record<string, React.ReactNode> = {};
   
+  const anchorForChildren =
+    canvasLayout !== null
+      ? { x: canvasLayout.x, y: canvasLayout.y }
+      : canvasAnchorGlobal;
+
   if (meta.acceptsChildren && node.children && node.children.length > 0) {
     node.children.forEach((slotNode: SlotNode) => {
       slots[slotNode.slot] = slotNode.components.map((childNode: ComponentNode, index: number) => (
@@ -76,6 +92,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
           projectTheme={projectTheme}
           depth={depth + 1}
           maxDepth={maxDepth}
+          canvasAnchorGlobal={anchorForChildren}
         />
       ));
     });
@@ -88,7 +105,34 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
 
   // Render with error boundary
   try {
-    return <Component {...props} />;
+    const inner = <Component {...props} />;
+    if (!canvasLayout) {
+      return inner;
+    }
+    const left = canvasAnchorGlobal
+      ? canvasLayout.x - canvasAnchorGlobal.x
+      : canvasLayout.x;
+    const top = canvasAnchorGlobal
+      ? canvasLayout.y - canvasAnchorGlobal.y
+      : canvasLayout.y;
+    const style: React.CSSProperties = {
+      position: 'absolute',
+      left,
+      top,
+      zIndex: canvasLayout.z ?? 1,
+    };
+    if (canvasLayout.w !== undefined) style.width = canvasLayout.w;
+    if (canvasLayout.h !== undefined) style.height = canvasLayout.h;
+    return (
+      <div
+        className="cms-builder-canvas-node"
+        style={style}
+        data-instance-id={node.instanceId}
+        data-canvas-layout="1"
+      >
+        {inner}
+      </div>
+    );
   } catch (error) {
     return (
       <div className="p-4 border-2 border-red-500 bg-red-50 text-red-700 rounded">
