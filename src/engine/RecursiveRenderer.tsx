@@ -63,9 +63,15 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
 
   const propsWithoutCanvas = omitCanvasLayout({ ...(node.props || {}) } as Record<string, unknown>);
 
+  const cmsProps: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(propsWithoutCanvas)) {
+    if (k.startsWith("__")) continue;
+    cmsProps[k] = v;
+  }
+
   // Build props with tokens injected (`_canvas` is layout-only, not passed to section components)
   const props: Record<string, any> = {
-    ...propsWithoutCanvas,
+    ...cmsProps,
     __tokens: mergedTokens, // Keep serializable token map only
     __depth: depth, // For debugging
     __instanceId: node.instanceId, // For debugging/editing

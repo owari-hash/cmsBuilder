@@ -80,7 +80,7 @@ const ChatMessageSchema = z.object({
 // ==========================================
 
 export const HeaderSchema = z.object({
-  title: z.string(),
+  title: z.string().default("Site"),
   theme: ThemeSchema.default("light"),
   links: z.array(LinkSchema).optional(),
   button: ButtonSchema.optional(), // Optional CTA in Header
@@ -99,7 +99,7 @@ export const HeaderSchema = z.object({
 });
 
 export const HeroSchema = z.object({
-  title: z.string(),
+  title: z.string().default("Welcome"),
   subtitle: z.string().optional(),
   align: AlignSchema.default("center"),
   theme: ThemeSchema.default("light"),
@@ -110,7 +110,7 @@ export const HeroSchema = z.object({
 
 export const AboutSchema = z.object({
   title: z.string().optional(),
-  description: z.string(),
+  description: z.string().default(""),
   align: AlignSchema.default("left"),
   theme: ThemeSchema.default("light"),
   images: z.array(ImageSchema).optional(),
@@ -118,8 +118,8 @@ export const AboutSchema = z.object({
 });
 
 export const FooterSchema = z.object({
-  title: z.string(),
-  copyright: z.string(),
+  title: z.string().default("Site"),
+  copyright: z.string().default("© All rights reserved"),
   theme: ThemeSchema.default("dark"),
   footerLinks: z.record(z.string(), z.string()).optional(),
   button: ButtonSchema.optional(),

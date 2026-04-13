@@ -54,6 +54,8 @@ export interface ProjectTheme {
   secondaryColor: string;
   fontFamily: string;
   darkMode: boolean;
+  /** CSS color for the main page shell (optional; falls back to Tailwind page bg) */
+  pageBackground?: string;
   customTokens?: Record<string, string>;  // Project-specific Tailwind classes
 }
 

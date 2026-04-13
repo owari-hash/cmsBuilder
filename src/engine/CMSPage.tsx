@@ -63,7 +63,16 @@ export const CMSPage: React.FC<CMSPageProps> = ({
       data-project={design.projectName}
       data-route={route}
     >
-      <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <div
+        className={`min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300 ${
+          design.theme.pageBackground ? "" : "bg-white dark:bg-gray-900"
+        }`}
+        style={
+          design.theme.pageBackground
+            ? { backgroundColor: design.theme.pageBackground }
+            : undefined
+        }
+      >
         <main
           className={useCanvasStage ? 'relative w-full' : undefined}
           style={useCanvasStage && canvasStageMinHeight !== undefined ? { minHeight: canvasStageMinHeight } : undefined}
