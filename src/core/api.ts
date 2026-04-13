@@ -51,7 +51,7 @@ class CMSApiClient {
   // Hybrid Architecture - Component Instances
   // ==========================================
 
-  async getPageComponents(projectName: string, pageRoute: string): Promise<ComponentInstance[]> {
+  private async fetchComponentsByRoute(projectName: string, pageRoute: string): Promise<ComponentInstance[]> {
     const encodedRoute = encodeURIComponent(pageRoute);
     const res = await fetch(`${this.baseUrl}/core/components?pageRoute=${encodedRoute}`, {
       cache: 'no-store',
@@ -64,6 +64,45 @@ class CMSApiClient {
 
     const data = await this.parseEnvelope<any>(res);
     return (data.components || data || []) as ComponentInstance[];
+  }
+
+  async getPageComponents(projectName: string, pageRoute: string): Promise<ComponentInstance[]> {
+    const [routeComponents, rootComponents] = await Promise.all([
+      this.fetchComponentsByRoute(projectName, pageRoute),
+      pageRoute === '/' ? Promise.resolve([] as ComponentInstance[]) : this.fetchComponentsByRoute(projectName, '/')
+    ]);
+
+    const rootShell = rootComponents.filter((component) => {
+      const type = String((component as any).componentType || '').toLowerCase();
+      const isRoot = component.parentId === null || component.parentId === undefined;
+      return isRoot && (type === 'header' || type === 'footer');
+    });
+
+    const routeRootTypes = new Set(
+      routeComponents
+        .filter((component) => component.parentId === null || component.parentId === undefined)
+        .map((component) => String((component as any).componentType || '').toLowerCase())
+    );
+
+    // Fallback to "/" shell components only when the current route does not define its own.
+    const fallbackShell = rootShell.filter((component) => {
+      const type = String((component as any).componentType || '').toLowerCase();
+      return !routeRootTypes.has(type);
+    });
+
+    const merged = [...routeComponents, ...fallbackShell].map((component) => ({ ...component }));
+    const rootNodes = merged.filter((component) => component.parentId === null || component.parentId === undefined);
+    const maxRootOrder = rootNodes.reduce((max, component) => Math.max(max, Number(component.order ?? 0)), 0);
+
+    // Always pin header first and footer last across every route.
+    merged.forEach((component) => {
+      if (!(component.parentId === null || component.parentId === undefined)) return;
+      const type = String((component as any).componentType || '').toLowerCase();
+      if (type === 'header') component.order = -10000;
+      if (type === 'footer') component.order = maxRootOrder + 10000;
+    });
+
+    return merged;
   }
 
   async getComponentTree(projectName: string, pageRoute: string): Promise<ComponentNode[]> {

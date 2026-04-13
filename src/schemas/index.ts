@@ -77,6 +77,18 @@ export const HeaderSchema = z.object({
   theme: ThemeSchema.default("light"),
   links: z.array(LinkSchema).optional(),
   button: ButtonSchema.optional(), // Optional CTA in Header
+  sticky: z.boolean().default(true),
+  topOffset: z.string().default("0px"),
+  className: z.string().optional(),
+  containerClassName: z.string().optional(),
+  innerClassName: z.string().optional(),
+  brandClassName: z.string().optional(),
+  navClassName: z.string().optional(),
+  linkClassName: z.string().optional(),
+  mobileMenuButtonClassName: z.string().optional(),
+  borderClassName: z.string().optional(),
+  shadowClassName: z.string().optional(),
+  style: z.record(z.any(), z.any()).optional()
 });
 
 export const HeroSchema = z.object({
@@ -104,6 +116,15 @@ export const FooterSchema = z.object({
   theme: ThemeSchema.default("dark"),
   footerLinks: z.record(z.string(), z.string()).optional(),
   button: ButtonSchema.optional(),
+  className: z.string().optional(),
+  containerClassName: z.string().optional(),
+  gridClassName: z.string().optional(),
+  brandClassName: z.string().optional(),
+  linksSectionClassName: z.string().optional(),
+  linkClassName: z.string().optional(),
+  borderClassName: z.string().optional(),
+  shadowClassName: z.string().optional(),
+  style: z.record(z.any(), z.any()).optional()
 });
 
 export const PaginationSchema = z.object({

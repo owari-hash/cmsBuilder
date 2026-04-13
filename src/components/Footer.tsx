@@ -1,6 +1,7 @@
 import React from 'react';
 import { FooterSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
+import { Button } from './Button';
 
 export const Footer: React.FC<any> = (rawProps) => {
   const parseResult = FooterSchema.safeParse(rawProps);
@@ -16,20 +17,28 @@ export const Footer: React.FC<any> = (rawProps) => {
 
   const props = parseResult.data;
   const bgClass = bgMap[props.theme];
+  const borderClass = props.borderClassName || 'border-t';
+  const shadowClass = props.shadowClassName || '';
+  const footerStyle = (props.style || {}) as React.CSSProperties;
 
   return (
-    <footer className={`w-full py-10 ${bgClass} border-t`}>
-      <div className="container px-4 md:px-6 mx-auto">
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-           <div className="flex flex-col space-y-3">
+    <footer className={`w-full py-10 ${bgClass} ${borderClass} ${shadowClass} ${props.className || ''}`.trim()} style={footerStyle}>
+      <div className={`container px-4 md:px-6 mx-auto ${props.containerClassName || ''}`.trim()}>
+         <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left ${props.gridClassName || ''}`.trim()}>
+           <div className={`flex flex-col space-y-3 ${props.brandClassName || ''}`.trim()}>
              <span className="font-bold text-xl">{props.title}</span>
              <span className="text-sm opacity-70">{props.copyright}</span>
+             {props.button ? (
+               <div className="pt-2">
+                 <Button {...props.button} />
+               </div>
+             ) : null}
            </div>
            <div></div>
-           <div className="flex flex-col space-y-3 md:items-end">
+           <div className={`flex flex-col space-y-3 md:items-end ${props.linksSectionClassName || ''}`.trim()}>
              <span className="font-semibold mb-2">Links</span>
              {props.footerLinks && Object.entries(props.footerLinks).map(([key, label]) => (
-               <a key={key} href={`/${key}`} className="text-sm hover:underline opacity-80 hover:opacity-100">
+               <a key={key} href={`/${key}`} className={`text-sm hover:underline opacity-80 hover:opacity-100 ${props.linkClassName || ''}`.trim()}>
                  {label}
                </a>
              ))}
