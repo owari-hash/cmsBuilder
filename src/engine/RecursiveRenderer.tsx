@@ -69,6 +69,29 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
     cmsProps[k] = v;
   }
 
+  const missingRequiredProps = (meta.requiredProps || []).filter((key) => {
+    const value = cmsProps[key];
+    return value === undefined || value === null || value === '';
+  });
+  if (process.env.NODE_ENV !== 'production' && missingRequiredProps.length > 0) {
+    console.warn(
+      `[cmsBuilder] Missing required props for ${node.componentType} (${node.instanceId}): ${missingRequiredProps.join(', ')}`,
+    );
+  }
+
+  // If payload uses "token:key" values, verify key existence in merged token maps.
+  const unknownTokens: string[] = [];
+  for (const value of Object.values(cmsProps)) {
+    if (typeof value !== 'string' || !value.startsWith('token:')) continue;
+    const key = value.replace(/^token:/, '');
+    if (!mergedTokens.custom?.[key]) unknownTokens.push(key);
+  }
+  if (process.env.NODE_ENV !== 'production' && unknownTokens.length > 0) {
+    console.warn(
+      `[cmsBuilder] Unknown tokens referenced by ${node.componentType} (${node.instanceId}): ${unknownTokens.join(', ')}`,
+    );
+  }
+
   // Build props with tokens injected (`_canvas` is layout-only, not passed to section components)
   const props: Record<string, any> = {
     ...cmsProps,
@@ -118,6 +141,8 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
           className="cms-builder-flow-root"
           data-instance-id={node.instanceId}
           data-cms-flow="1"
+          data-cms-validation={missingRequiredProps.length > 0 ? "warning" : "ok"}
+          data-cms-unknown-tokens={unknownTokens.join(",")}
           style={{ display: 'contents' }}
         >
           {inner}
@@ -144,6 +169,8 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
         style={style}
         data-instance-id={node.instanceId}
         data-canvas-layout="1"
+        data-cms-validation={missingRequiredProps.length > 0 ? "warning" : "ok"}
+        data-cms-unknown-tokens={unknownTokens.join(",")}
       >
         {inner}
       </div>

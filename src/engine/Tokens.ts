@@ -55,7 +55,10 @@ export const baseTokens = {
  * Project primaryColor overrides base primary
  */
 export const mergeProjectTokens = (projectTheme?: ProjectTheme): MergedTokens => {
-  const custom = projectTheme?.customTokens || {};
+  const canonical = projectTheme?.tokens || {};
+  const legacy = projectTheme?.customTokens || {};
+  // precedence: canonical tokens (v2) then legacy customTokens.
+  const custom = { ...legacy, ...canonical };
   
   // Build primary color class from hex
   const primaryColorClass = projectTheme?.primaryColor
@@ -115,7 +118,10 @@ export const createTokenMap = (mergedTokens: MergedTokens): TokenMap => ({
 export const generateCSSVariables = (theme: ProjectTheme): Record<string, string> => ({
   '--primary-color': theme.primaryColor,
   '--secondary-color': theme.secondaryColor,
-  '--font-family': theme.fontFamily
+  '--font-family': theme.fontFamily,
+  ...Object.fromEntries(
+    Object.entries(theme.tokens || theme.customTokens || {}).map(([k, v]) => [`--${k}`, String(v)])
+  )
 });
 
 /**

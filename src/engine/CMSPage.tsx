@@ -43,8 +43,22 @@ export const CMSPage: React.FC<CMSPageProps> = ({
       }))
     : [];
 
-  const componentTree = normalizedInstances.length > 0
-    ? buildComponentTree(normalizedInstances)
+  const routeInstances = normalizedInstances.filter((instance) => instance.pageRoute === route);
+  const globalInstances = normalizedInstances.filter((instance) => instance.pageRoute === '/');
+  const hasRouteHeader = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'header');
+  const hasRouteFooter = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'footer');
+  const globalHeader = globalInstances.find((instance) => instance.parentId == null && instance.componentType === 'header');
+  const globalFooter = globalInstances.find((instance) => instance.parentId == null && instance.componentType === 'footer');
+
+  // Runtime safety net: if shell is missing on route data, inject from global route.
+  const effectiveInstances = [
+    ...routeInstances,
+    ...(!hasRouteHeader && globalHeader ? [{ ...globalHeader, pageRoute: route }] : []),
+    ...(!hasRouteFooter && globalFooter ? [{ ...globalFooter, pageRoute: route }] : []),
+  ];
+
+  const componentTree = effectiveInstances.length > 0
+    ? buildComponentTree(effectiveInstances)
     : [];
 
   // Generate CSS variables from theme
@@ -53,8 +67,8 @@ export const CMSPage: React.FC<CMSPageProps> = ({
   // Check if we have any components to render
   const hasComponents = componentTree && componentTree.length > 0;
 
-  const useCanvasStage = pageHasCanvasLayout(normalizedInstances);
-  const canvasStageMinHeight = useCanvasStage ? computeCanvasStageMinHeight(normalizedInstances) : undefined;
+  const useCanvasStage = pageHasCanvasLayout(effectiveInstances);
+  const canvasStageMinHeight = useCanvasStage ? computeCanvasStageMinHeight(effectiveInstances) : undefined;
 
   return (
     <div 

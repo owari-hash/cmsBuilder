@@ -441,8 +441,9 @@ export const TwoColumnSchema = z.object({
 });
 
 export const GridSchema = z.object({
-  columns: z.number().int().min(1).max(12).default(3),
+  columns: z.number().int().min(1).max(12).default(12),
   gap: SpacingSchema.default("md"),
+  minChildWidth: z.number().int().min(100).max(1440).default(100),
   theme: ThemeSchema.default("light"),
 });
 
@@ -457,7 +458,16 @@ export const CardSchema = z.object({
 
 export const ContainerSchema = z.object({
   maxWidth: z.enum(["sm", "md", "lg", "xl", "full"]).default("xl"),
+  maxWidthPx: z.number().int().min(320).max(1440).default(1200),
   padding: SpacingSchema.default("lg"),
+  theme: ThemeSchema.default("light"),
+});
+
+export const SectionSchema = z.object({
+  width: z.enum(["full"]).default("full"),
+  minHeight: z.number().int().min(80).max(2000).default(500),
+  paddingY: z.number().int().min(0).max(200).default(80),
+  backgroundColor: z.string().optional().default("#ffffff"),
   theme: ThemeSchema.default("light"),
 });
 
@@ -466,6 +476,7 @@ ComponentSchemas["twocolumn"] = TwoColumnSchema;
 ComponentSchemas["grid"] = GridSchema;
 ComponentSchemas["card"] = CardSchema;
 ComponentSchemas["container"] = ContainerSchema;
+ComponentSchemas["section"] = SectionSchema;
 
 // ==========================================
 // 6. Component Instance Schemas (Hybrid Architecture)
@@ -515,6 +526,7 @@ export const ProjectThemeSchema = z.object({
   secondaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#1f2937"),
   fontFamily: z.string().default("Inter"),
   darkMode: z.boolean().default(false),
+  tokens: z.record(z.string(), z.string()).optional(),
   customTokens: z.record(z.string(), z.string()).optional(),
 });
 
@@ -621,4 +633,5 @@ export type TwoColumnProps = z.infer<typeof TwoColumnSchema>;
 export type GridProps = z.infer<typeof GridSchema>;
 export type CardProps = z.infer<typeof CardSchema>;
 export type ContainerProps = z.infer<typeof ContainerSchema>;
+export type SectionProps = z.infer<typeof SectionSchema>;
 export type ProjectThemeType = z.infer<typeof ProjectThemeSchema>;

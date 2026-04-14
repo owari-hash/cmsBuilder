@@ -56,6 +56,8 @@ export interface ProjectTheme {
   darkMode: boolean;
   /** CSS color for the main page shell (optional; falls back to Tailwind page bg) */
   pageBackground?: string;
+  /** Canonical token namespace (v2); preferred over legacy customTokens when present. */
+  tokens?: Record<string, string>;
   customTokens?: Record<string, string>;  // Project-specific Tailwind classes
 }
 
