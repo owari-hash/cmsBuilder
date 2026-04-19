@@ -198,7 +198,10 @@ export const ServicesSchema = z
   .object({
     title: z.string().optional(),
     subtitle: z.string().optional(),
-    items: z.array(LegacyListItemSchema).optional().default([]),
+    items: z.preprocess(
+      (val) => Array.isArray(val) ? val.map((item) => typeof item === 'string' ? { title: item } : item) : val,
+      z.array(LegacyListItemSchema).optional().default([])
+    ),
     align: AlignSchema.default("left"),
     theme: ThemeSchema.default("light"),
     spacing: SpacingSchema.default("md"),
