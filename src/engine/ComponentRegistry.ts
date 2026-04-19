@@ -351,7 +351,7 @@ let userRegistry: Record<string, RegisteredComponent> = {};
 let cachedActiveRegistry: Record<string, RegisteredComponent> | null = null;
 
 function computeActiveRegistry(): Record<string, RegisteredComponent> {
-  return { ...userRegistry };
+  return { ...defaultComponentRegistry, ...userRegistry };
 }
 
 export function getActiveRegistry(): Record<string, RegisteredComponent> {
