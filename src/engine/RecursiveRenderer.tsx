@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { ComponentNode, ProjectTheme, SlotNode } from '../types';
-import { ComponentRegistry, isValidComponent } from './ComponentRegistry';
+import { getComponent } from './ComponentRegistry';
 import { mergeProjectTokens } from './Tokens';
 import { UnknownComponent } from '../components/UnknownComponent';
 import { omitCanvasLayout, parseCanvasLayout } from './canvasLayout';
@@ -43,8 +43,8 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
     );
   }
 
-  // Validate component exists
-  if (!isValidComponent(node.componentType)) {
+  const registered = getComponent(node.componentType);
+  if (!registered) {
     return (
       <UnknownComponent
         componentType={node.componentType}
@@ -54,7 +54,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
     );
   }
 
-  const { component: Component, meta } = ComponentRegistry[node.componentType.toLowerCase()];
+  const { component: Component, meta } = registered;
 
   const canvasLayout = parseCanvasLayout(node.props as Record<string, unknown>);
 

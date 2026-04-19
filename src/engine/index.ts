@@ -6,7 +6,13 @@
 // Component Registry
 export {
   ComponentRegistry,
+  defaultComponentRegistry,
   BaseComponents,
+  getBaseComponents,
+  getActiveRegistry,
+  registerCmsComponents,
+  registerDefaultCmsComponents,
+  resetCmsUserComponents,
   isValidComponent,
   getComponent,
   getComponentMeta,

@@ -43,7 +43,7 @@ import { Container } from '../components/layouts/Container';
 // Component Registry Definition
 // ==========================================
 
-export const ComponentRegistry: Record<string, RegisteredComponent> = {
+const defaultComponentRegistry: Record<string, RegisteredComponent> = {
   // ==========================================
   // SECTIONS - Page-level blocks (no children)
   // ==========================================
@@ -340,6 +340,80 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
 };
 
 // ==========================================
+// Active registry (empty until you register)
+// ==========================================
+//
+// Nothing renders until components are registered. Use registerCmsComponents() for your
+// map, or registerDefaultCmsComponents() once if you want the built-in Header/Hero/… set.
+
+let userRegistry: Record<string, RegisteredComponent> = {};
+
+let cachedActiveRegistry: Record<string, RegisteredComponent> | null = null;
+
+function computeActiveRegistry(): Record<string, RegisteredComponent> {
+  return { ...userRegistry };
+}
+
+export function getActiveRegistry(): Record<string, RegisteredComponent> {
+  if (cachedActiveRegistry === null) {
+    cachedActiveRegistry = computeActiveRegistry();
+  }
+  return cachedActiveRegistry;
+}
+
+export function registerCmsComponents(
+  map: Record<string, RegisteredComponent>
+): void {
+  for (const [k, v] of Object.entries(map)) {
+    userRegistry[k.toLowerCase()] = v;
+  }
+  cachedActiveRegistry = null;
+}
+
+/** Optional: register the full built-in component set (Header, Hero, layouts, …). */
+export function registerDefaultCmsComponents(): void {
+  registerCmsComponents(defaultComponentRegistry);
+}
+
+/** @internal Reset user registrations (e.g. tests). */
+export function resetCmsUserComponents(): void {
+  userRegistry = {};
+  cachedActiveRegistry = null;
+}
+
+export { defaultComponentRegistry };
+
+export const ComponentRegistry = new Proxy(
+  {} as Record<string, RegisteredComponent>,
+  {
+    get(_, prop: string | symbol) {
+      if (typeof prop === 'symbol') return undefined;
+      return getActiveRegistry()[prop.toLowerCase()];
+    },
+    has(_, prop: string | symbol) {
+      if (typeof prop === 'symbol') return false;
+      return prop.toLowerCase() in getActiveRegistry();
+    },
+    ownKeys() {
+      return Object.keys(getActiveRegistry());
+    },
+    getOwnPropertyDescriptor(_, prop: string | symbol) {
+      if (typeof prop === 'symbol') return undefined;
+      const reg = getActiveRegistry();
+      const key = prop.toLowerCase();
+      if (key in reg) {
+        return {
+          enumerable: true,
+          configurable: true,
+          value: reg[key],
+        };
+      }
+      return undefined;
+    },
+  }
+);
+
+// ==========================================
 // Helper Functions
 // ==========================================
 
@@ -347,32 +421,32 @@ export const ComponentRegistry: Record<string, RegisteredComponent> = {
  * Check if a component type is registered
  */
 export const isValidComponent = (type: string): boolean => {
-  return type.toLowerCase() in ComponentRegistry;
+  return type.toLowerCase() in getActiveRegistry();
 };
 
 /**
  * Get a registered component by type
  */
 export const getComponent = (type: string): RegisteredComponent | undefined => {
-  return ComponentRegistry[type.toLowerCase()];
+  return getActiveRegistry()[type.toLowerCase()];
 };
 
 /**
  * Get component metadata
  */
 export const getComponentMeta = (type: string): ComponentMeta | undefined => {
-  return ComponentRegistry[type.toLowerCase()]?.meta;
+  return getActiveRegistry()[type.toLowerCase()]?.meta;
 };
 
 /**
  * Get all registered component types
  */
 export const getAllComponentTypes = (): string[] => {
-  return Object.keys(ComponentRegistry);
+  return Object.keys(getActiveRegistry());
 };
 
 export const getVersionedComponentTypes = (): RegistryComponentType[] => {
-  return Object.entries(ComponentRegistry).map(([type, config]) => ({
+  return Object.entries(getActiveRegistry()).map(([type, config]) => ({
     type,
     category: config.meta.category,
     description: config.meta.description || '',
@@ -380,7 +454,7 @@ export const getVersionedComponentTypes = (): RegistryComponentType[] => {
     version: config.meta.version || '1.0.0',
     capabilities: config.meta.capabilities || [],
     requiredProps: config.meta.requiredProps || [],
-    deprecations: config.meta.deprecations || []
+    deprecations: config.meta.deprecations || [],
   }));
 };
 
@@ -388,7 +462,7 @@ export const getVersionedComponentTypes = (): RegistryComponentType[] => {
  * Get components by category
  */
 export const getComponentsByCategory = (category: ComponentCategory): string[] => {
-  return Object.entries(ComponentRegistry)
+  return Object.entries(getActiveRegistry())
     .filter(([_, config]) => config.meta.category === category)
     .map(([type, _]) => type);
 };
@@ -397,14 +471,14 @@ export const getComponentsByCategory = (category: ComponentCategory): string[] =
  * Check if component accepts children
  */
 export const acceptsChildren = (type: string): boolean => {
-  return ComponentRegistry[type.toLowerCase()]?.meta.acceptsChildren || false;
+  return getActiveRegistry()[type.toLowerCase()]?.meta.acceptsChildren || false;
 };
 
 /**
  * Get valid slots for a layout component
  */
 export const getValidSlots = (type: string): string[] => {
-  return ComponentRegistry[type.toLowerCase()]?.meta.slots || [];
+  return getActiveRegistry()[type.toLowerCase()]?.meta.slots || [];
 };
 
 /**
@@ -419,12 +493,41 @@ export const isValidSlot = (componentType: string, slot: string): boolean => {
 // Base Components Export (for CMSPage)
 // ==========================================
 
-export const BaseComponents: Record<string, React.FC<any>> = Object.fromEntries(
-  Object.entries(ComponentRegistry).map(([type, config]) => [
-    type.toLowerCase(),
-    config.component
-  ])
-);
+export function getBaseComponents(): Record<string, React.FC<any>> {
+  return Object.fromEntries(
+    Object.entries(getActiveRegistry()).map(([type, config]) => [
+      type.toLowerCase(),
+      config.component,
+    ])
+  );
+}
+
+export const BaseComponents = new Proxy({} as Record<string, React.FC<any>>, {
+  get(_, prop: string | symbol) {
+    if (typeof prop === 'symbol') return undefined;
+    return getActiveRegistry()[prop.toLowerCase()]?.component;
+  },
+  has(_, prop: string | symbol) {
+    if (typeof prop === 'symbol') return false;
+    return prop.toLowerCase() in getActiveRegistry();
+  },
+  ownKeys() {
+    return Object.keys(getActiveRegistry());
+  },
+  getOwnPropertyDescriptor(_, prop: string | symbol) {
+    if (typeof prop === 'symbol') return undefined;
+    const reg = getActiveRegistry();
+    const key = prop.toLowerCase();
+    if (key in reg) {
+      return {
+        enumerable: true,
+        configurable: true,
+        value: reg[key].component,
+      };
+    }
+    return undefined;
+  },
+});
 
 export const IndustryModules: Record<string, IndustryModule> = {
   service: {
