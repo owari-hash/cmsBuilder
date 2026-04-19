@@ -57,7 +57,7 @@ export const Container: React.FC<ContainerProps> = ({
 
   return (
     <section className={`w-full ${bgClass}`}>
-      <div className={`container mx-auto ${maxWidthClasses[maxWidth]} ${paddingClasses[padding]}`}>
+      <div className={`relative w-full h-full container mx-auto ${maxWidthClasses[maxWidth]} ${paddingClasses[padding]}`}>
         {slots.default || (
           <div className="p-8 border-2 border-dashed border-gray-300 rounded text-gray-400 text-center">
             Container slot - empty

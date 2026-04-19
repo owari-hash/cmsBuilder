@@ -58,7 +58,7 @@ export const Grid: React.FC<GridProps> = ({
     <section className={`w-full ${bgClass}`}>
       <div className="container mx-auto px-4 md:px-6 py-8">
         <div 
-          className={`grid ${gapClasses[gap]}`}
+          className={`grid relative w-full h-full ${gapClasses[gap]}`}
           style={gridStyle}
         >
           {slots.items || (

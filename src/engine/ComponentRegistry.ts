@@ -38,6 +38,7 @@ import { TwoColumn } from '../components/layouts/TwoColumn';
 import { Grid } from '../components/layouts/Grid';
 import { Card } from '../components/layouts/Card';
 import { Container } from '../components/layouts/Container';
+import { Section } from '../components/layouts/Section';
 
 // ==========================================
 // Component Registry Definition
@@ -244,6 +245,20 @@ const defaultComponentRegistry: Record<string, RegisteredComponent> = {
       acceptsChildren: true,
       slots: ['default'],
       description: 'Max-width container with padding options',
+      version: '1.0.0',
+      capabilities: ['layout'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+  
+  section: {
+    component: Section,
+    meta: {
+      category: 'layout' as ComponentCategory,
+      acceptsChildren: true,
+      slots: ['default'],
+      description: 'Full-width semantic section wrapper',
       version: '1.0.0',
       capabilities: ['layout'],
       requiredProps: [],

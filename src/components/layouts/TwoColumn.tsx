@@ -68,14 +68,14 @@ export const TwoColumn: React.FC<TwoColumnProps> = ({
     <section className={`w-full ${bgClass}`}>
       <div className="container mx-auto px-4 md:px-6 py-8">
         <div className={`grid grid-cols-1 ${ratioClasses[ratio]} ${gapClasses[gap]} ${alignClasses[verticalAlign]}`}>
-          <div className="left-column min-h-[100px]">
+          <div className="left-column relative w-full h-full min-h-[100px]">
             {slots.left || (
               <div className="p-8 border-2 border-dashed border-gray-300 rounded text-gray-400 text-center">
                 Left slot - empty
               </div>
             )}
           </div>
-          <div className="right-column min-h-[100px]">
+          <div className="right-column relative w-full h-full min-h-[100px]">
             {slots.right || (
               <div className="p-8 border-2 border-dashed border-gray-300 rounded text-gray-400 text-center">
                 Right slot - empty

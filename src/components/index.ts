@@ -22,3 +22,4 @@ export { TwoColumn } from './layouts/TwoColumn';
 export { Grid } from './layouts/Grid';
 export { Card } from './layouts/Card';
 export { Container } from './layouts/Container';
+export { Section } from './layouts/Section';

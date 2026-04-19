@@ -61,7 +61,7 @@ export const Card: React.FC<CardProps> = ({
   const bgClass = bgMap[theme];
 
   return (
-    <div className={`rounded-lg overflow-hidden ${shadowClasses[shadow]} ${border ? 'border border-gray-200' : ''} ${bgClass}`}>
+    <div className={`relative rounded-lg overflow-hidden w-full h-full ${shadowClasses[shadow]} ${border ? 'border border-gray-200' : ''} ${bgClass}`}>
       {/* Header Slot or Default Header */}
       {(slots.header || title) && (
         <div className={`${paddingClasses[padding]} border-b border-gray-200/50`}>
