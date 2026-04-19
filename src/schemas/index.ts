@@ -194,13 +194,58 @@ const LegacyListItemSchema = z
   })
   .passthrough();
 
+/** One row: object from CMS, plain title string, or JSON object string */
+const ServiceListItemSchema = z.union([
+  LegacyListItemSchema,
+  z.string().transform((s) => {
+    const t = s.trim();
+    if (t.startsWith("{") && t.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(t) as unknown;
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          return parsed as z.infer<typeof LegacyListItemSchema>;
+        }
+      } catch {
+        /* fall through */
+      }
+    }
+    return { title: s };
+  }),
+]);
+
+/** API / DB may send arrays, JSON strings, or pseudo-arrays { "0": … } */
+function normalizeServicesItemsInput(val: unknown): unknown {
+  if (val == null || val === "") return [];
+  if (typeof val === "string") {
+    const t = val.trim();
+    if (t.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(t) as unknown;
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+  if (Array.isArray(val)) return val;
+  if (typeof val === "object" && val !== null) {
+    const o = val as Record<string, unknown>;
+    const keys = Object.keys(o)
+      .filter((k) => /^\d+$/.test(k))
+      .sort((a, b) => Number(a) - Number(b));
+    if (keys.length > 0) return keys.map((k) => o[k]);
+  }
+  return val;
+}
+
 export const ServicesSchema = z
   .object({
     title: z.string().optional(),
     subtitle: z.string().optional(),
     items: z.preprocess(
-      (val) => Array.isArray(val) ? val.map((item) => typeof item === 'string' ? { title: item } : item) : val,
-      z.array(LegacyListItemSchema).optional().default([])
+      normalizeServicesItemsInput,
+      z.array(ServiceListItemSchema).default([])
     ),
     align: AlignSchema.default("left"),
     theme: ThemeSchema.default("light"),
