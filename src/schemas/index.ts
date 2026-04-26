@@ -96,6 +96,8 @@ export const HeaderSchema = z.object({
   borderClassName: z.string().optional(),
   shadowClassName: z.string().optional(),
   style: z.record(z.any(), z.any()).optional(),
+  /** Nav link label size in px (SuperAdmin builder + runtime Header) */
+  navFontSize: z.coerce.number().min(8).max(28).optional(),
 }).passthrough();
 
 export const HeroSchema = z.object({

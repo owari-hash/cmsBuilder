@@ -41,6 +41,7 @@ export const Header: React.FC<any> = (rawProps) => {
   const titleColor =
     typeof raw.textColor === 'string' && raw.textColor ? { color: raw.textColor } : undefined;
   const fs = fontSizeFromProp(raw.fontSize);
+  const navFs = fontSizeFromProp((raw as Record<string, unknown>).navFontSize) ?? 14;
 
   return (
     <header
@@ -69,7 +70,8 @@ export const Header: React.FC<any> = (rawProps) => {
               href={link.href}
               target={link.isExternal ? "_blank" : undefined}
               rel={link.isExternal ? "noopener noreferrer" : undefined}
-              className={`rounded-full px-3 py-2 text-sm font-medium transition-all opacity-85 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 ${props.linkClassName || ''}`.trim()}
+              className={`rounded-full px-3 py-2 font-medium transition-all opacity-85 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 ${props.linkClassName || ''}`.trim()}
+              style={{ fontSize: navFs }}
             >
               {link.label}
             </a>
