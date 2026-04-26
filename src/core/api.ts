@@ -1,5 +1,6 @@
 import { WebsiteDesign, ComponentInstance, ComponentNode } from "../types";
 import { ComponentSchemas } from "../schemas";
+import { normalizePageRoute } from "../engine/pageRoute";
 
 class CMSApiClient {
   private baseUrl: string;
@@ -243,7 +244,8 @@ class CMSApiClient {
     projectName: string,
     pageRoute: string,
   ): Promise<ComponentInstance[]> {
-    const encodedRoute = encodeURIComponent(pageRoute);
+    const route = normalizePageRoute(pageRoute);
+    const encodedRoute = encodeURIComponent(route);
     const res = await fetch(
       `${this.baseUrl}/core/components?pageRoute=${encodedRoute}`,
       {
@@ -255,7 +257,7 @@ class CMSApiClient {
     if (!res.ok) {
       return this.handleError(
         res,
-        `Failed to fetch components for ${pageRoute}`,
+        `Failed to fetch components for ${route}`,
       );
     }
 
@@ -267,9 +269,10 @@ class CMSApiClient {
     projectName: string,
     pageRoute: string,
   ): Promise<ComponentInstance[]> {
+    const norm = normalizePageRoute(pageRoute);
     const [routeComponents, rootComponents] = await Promise.all([
-      this.fetchComponentsByRoute(projectName, pageRoute),
-      pageRoute === "/"
+      this.fetchComponentsByRoute(projectName, norm),
+      norm === "/"
         ? Promise.resolve([] as ComponentInstance[])
         : this.fetchComponentsByRoute(projectName, "/"),
     ]);
@@ -326,7 +329,8 @@ class CMSApiClient {
     projectName: string,
     pageRoute: string,
   ): Promise<ComponentNode[]> {
-    const encodedRoute = encodeURIComponent(pageRoute);
+    const route = normalizePageRoute(pageRoute);
+    const encodedRoute = encodeURIComponent(route);
     const res = await fetch(
       `${this.baseUrl}/core/components/tree?pageRoute=${encodedRoute}`,
       {
@@ -338,7 +342,7 @@ class CMSApiClient {
     if (!res.ok) {
       return this.handleError(
         res,
-        `Failed to fetch component tree for ${pageRoute}`,
+        `Failed to fetch component tree for ${route}`,
       );
     }
 

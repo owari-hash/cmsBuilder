@@ -25,6 +25,7 @@ export {
 
 // Core Engine
 export { CMSPage } from './CMSPage';
+export { normalizePageRoute } from './pageRoute';
 export { RecursiveRenderer } from './RecursiveRenderer';
 export { ThemeProvider, useTheme } from './ThemeProvider';
 export { createTokenMap, mergeProjectTokens, baseTokens } from './Tokens';

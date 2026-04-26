@@ -1,5 +1,6 @@
 export * from './core/api';
 export * from './core/services';
+export * from './engine/pageRoute';
 export * from './engine/CMSPage';
 export * from './engine/canvasLayout';
 export * from './engine/ThemeProvider';

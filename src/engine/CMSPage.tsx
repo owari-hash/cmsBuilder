@@ -9,6 +9,7 @@ import { RecursiveRenderer, buildComponentTree } from './RecursiveRenderer';
 import { generateCSSVariables } from './Tokens';
 import { computeCanvasStageMinHeight, pageHasCanvasLayout } from './canvasLayout';
 import { dedupeRootInstances } from './dedupeRootInstances';
+import { normalizePageRoute } from './pageRoute';
 
 interface CMSPageProps {
   design: WebsiteDesign;
@@ -42,6 +43,8 @@ export const CMSPage: React.FC<CMSPageProps> = ({
     );
   }
 
+  const routeKey = normalizePageRoute(route);
+
   // Build component tree from flat instances
   const normalizedInstances = Array.isArray(componentInstances)
     ? componentInstances.map((instance) => ({
@@ -51,9 +54,13 @@ export const CMSPage: React.FC<CMSPageProps> = ({
     : [];
 
   const routeInstances = dedupeRootInstances(
-    normalizedInstances.filter((instance) => instance.pageRoute === route),
+    normalizedInstances.filter(
+      (instance) => normalizePageRoute(instance.pageRoute) === routeKey,
+    ),
   );
-  const globalInstances = normalizedInstances.filter((instance) => instance.pageRoute === '/');
+  const globalInstances = normalizedInstances.filter(
+    (instance) => normalizePageRoute(instance.pageRoute) === '/',
+  );
   const dedupedGlobalRoots = dedupeRootInstances(globalInstances);
   const hasRouteHeader = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'header');
   const hasRouteFooter = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'footer');
@@ -67,8 +74,8 @@ export const CMSPage: React.FC<CMSPageProps> = ({
   // Runtime safety net: if shell is missing on route data, inject from global route.
   const effectiveInstances = [
     ...routeInstances,
-    ...(!hasRouteHeader && globalHeader ? [{ ...globalHeader, pageRoute: route }] : []),
-    ...(!hasRouteFooter && globalFooter ? [{ ...globalFooter, pageRoute: route }] : []),
+    ...(!hasRouteHeader && globalHeader ? [{ ...globalHeader, pageRoute: routeKey }] : []),
+    ...(!hasRouteFooter && globalFooter ? [{ ...globalFooter, pageRoute: routeKey }] : []),
   ];
 
   const componentTree = effectiveInstances.length > 0
@@ -89,7 +96,7 @@ export const CMSPage: React.FC<CMSPageProps> = ({
       className={design.theme.darkMode ? 'dark' : ''} 
       style={themeStyles}
       data-project={design.projectName}
-      data-route={route}
+      data-route={routeKey}
     >
       <div
         className={`min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300 ${

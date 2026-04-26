@@ -148,7 +148,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
           data-cms-flow="1"
           data-cms-validation={missingRequiredProps.length > 0 ? "warning" : "ok"}
           data-cms-unknown-tokens={unknownTokens.join(",")}
-          style={{ display: 'contents' }}
+          style={liveEdit ? undefined : { display: 'contents' }}
         >
           {inner}
         </div>
