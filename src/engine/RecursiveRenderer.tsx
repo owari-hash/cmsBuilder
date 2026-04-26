@@ -191,6 +191,53 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   }
 };
 
+const FREE_COMPONENT_TYPE_PREFIX = /^free_/;
+
+/**
+ * Superadmin persists canvas elements as DB rows: parent = block, slot = "free",
+ * componentType = "free_text" | "free_divider" | … . Hero/sections read `_elements`
+ * on props (see Hero.tsx). Merge those children into `props._elements` and drop the
+ * synthetic slot so `acceptsChildren: false` blocks still receive freeform data.
+ */
+function hoistFreeSlotChildrenIntoProps(map: Map<string, ComponentNode>) {
+  map.forEach((node) => {
+    if (!node.children?.length) return;
+    const idx = node.children.findIndex((s) => s.slot === 'free');
+    if (idx === -1) return;
+    const freeSlot = node.children[idx]!;
+    if (!freeSlot.components.length) {
+      node.children.splice(idx, 1);
+      return;
+    }
+    freeSlot.components.sort(
+      (a, b) => (Number(a.order) || 0) - (Number(b.order) || 0),
+    );
+    const _elements = freeSlot.components.map((child) => {
+      const raw =
+        child.props && typeof child.props === 'object' && !Array.isArray(child.props)
+          ? { ...child.props }
+          : {};
+      delete raw._pageName;
+      delete raw._pageId;
+      const ct = String(child.componentType || '').toLowerCase();
+      const fromComponentType = FREE_COMPONENT_TYPE_PREFIX.test(ct)
+        ? ct.replace(FREE_COMPONENT_TYPE_PREFIX, '')
+        : ct;
+      const id =
+        typeof raw.id === 'string' && raw.id ? raw.id : child.instanceId;
+      const type =
+        typeof raw.type === 'string' && raw.type ? raw.type : fromComponentType;
+      return { ...raw, id, type };
+    });
+    const prev =
+      node.props && typeof node.props === 'object' && !Array.isArray(node.props)
+        ? node.props
+        : {};
+    node.props = { ...prev, _elements };
+    node.children.splice(idx, 1);
+  });
+}
+
 /**
  * Build component tree from flat instances
  * Converts flat parentId references to nested tree structure
@@ -231,6 +278,8 @@ export const buildComponentTree = (instances: any[]): ComponentNode[] => {
       }
     }
   });
+
+  hoistFreeSlotChildrenIntoProps(map);
 
   // Sort by order at each level
   roots.sort((a, b) => a.order - b.order);
