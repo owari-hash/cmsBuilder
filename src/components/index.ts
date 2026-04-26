@@ -16,6 +16,7 @@ export { TextSection } from './TextSection';
 export { NewsSection } from './NewsSection';
 export { JobsSection } from './JobsSection';
 export { ContactFormSection } from './ContactFormSection';
+export { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 // Layout components
 export { TwoColumn } from './layouts/TwoColumn';
