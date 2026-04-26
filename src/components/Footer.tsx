@@ -2,6 +2,7 @@ import React from 'react';
 import { FooterSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
 import { Button } from './Button';
+import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 
 export const Footer: React.FC<any> = (rawProps) => {
   const parseResult = FooterSchema.safeParse(rawProps);
@@ -16,18 +17,35 @@ export const Footer: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
-  const bgClass = bgMap[props.theme];
+  const raw = props as Record<string, unknown>;
+  const surface = surfaceStyleFromProps(raw);
+  const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
+  const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const borderClass = props.borderClassName || 'border-t';
   const shadowClass = props.shadowClassName || '';
-  const footerStyle = (props.style || {}) as React.CSSProperties;
+  const footerStyle: React.CSSProperties = {
+    ...surface,
+    ...((props.style || {}) as React.CSSProperties),
+  };
+  const textMuted =
+    typeof raw.textColor === 'string' && raw.textColor
+      ? { color: raw.textColor, opacity: 0.85 }
+      : undefined;
+  const titleColor =
+    typeof raw.textColor === 'string' && raw.textColor ? { color: raw.textColor } : undefined;
+  const fs = fontSizeFromProp(raw.fontSize);
 
   return (
     <footer className={`w-full py-10 ${bgClass} ${borderClass} ${shadowClass} ${props.className || ''}`.trim()} style={footerStyle}>
       <div className={`container px-4 md:px-6 mx-auto ${props.containerClassName || ''}`.trim()}>
          <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left ${props.gridClassName || ''}`.trim()}>
            <div className={`flex flex-col space-y-3 ${props.brandClassName || ''}`.trim()}>
-             <span className="font-bold text-xl">{props.title}</span>
-             <span className="text-sm opacity-70">{props.copyright}</span>
+             <span className="font-bold text-xl" style={{ ...titleColor, fontSize: fs }}>
+               {props.title}
+             </span>
+             <span className="text-sm opacity-70" style={textMuted}>
+               {props.copyright}
+             </span>
              {props.button ? (
                <div className="pt-2">
                  <Button {...props.button} />

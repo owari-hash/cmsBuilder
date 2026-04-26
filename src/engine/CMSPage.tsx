@@ -8,6 +8,7 @@ import { WebsiteDesign, ComponentInstance } from '../types';
 import { RecursiveRenderer, buildComponentTree } from './RecursiveRenderer';
 import { generateCSSVariables } from './Tokens';
 import { computeCanvasStageMinHeight, pageHasCanvasLayout } from './canvasLayout';
+import { dedupeRootInstances } from './dedupeRootInstances';
 
 interface CMSPageProps {
   design: WebsiteDesign;
@@ -43,12 +44,19 @@ export const CMSPage: React.FC<CMSPageProps> = ({
       }))
     : [];
 
-  const routeInstances = normalizedInstances.filter((instance) => instance.pageRoute === route);
+  const routeInstances = dedupeRootInstances(
+    normalizedInstances.filter((instance) => instance.pageRoute === route),
+  );
   const globalInstances = normalizedInstances.filter((instance) => instance.pageRoute === '/');
+  const dedupedGlobalRoots = dedupeRootInstances(globalInstances);
   const hasRouteHeader = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'header');
   const hasRouteFooter = routeInstances.some((instance) => instance.parentId == null && instance.componentType === 'footer');
-  const globalHeader = globalInstances.find((instance) => instance.parentId == null && instance.componentType === 'header');
-  const globalFooter = globalInstances.find((instance) => instance.parentId == null && instance.componentType === 'footer');
+  const globalHeader = dedupedGlobalRoots.find(
+    (instance) => instance.parentId == null && instance.componentType === 'header',
+  );
+  const globalFooter = dedupedGlobalRoots.find(
+    (instance) => instance.parentId == null && instance.componentType === 'footer',
+  );
 
   // Runtime safety net: if shell is missing on route data, inject from global route.
   const effectiveInstances = [

@@ -2,6 +2,7 @@ import React from 'react';
 import { HeaderSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
 import { Button } from './Button';
+import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 
 export const Header: React.FC<any> = (rawProps) => {
   const parseResult = HeaderSchema.safeParse(rawProps);
@@ -16,14 +17,30 @@ export const Header: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
-  const bgClass = bgMap[props.theme];
+  const raw = props as Record<string, unknown>;
+  const surface = surfaceStyleFromProps(raw);
+  const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
+  const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const headerPositionClass = props.sticky ? 'sticky top-0 z-50' : 'relative';
-  const headerStyle = {
-    ...(props.style || {}),
-    ...(props.sticky ? { top: props.topOffset || '0px' } : {})
-  } as React.CSSProperties;
-  const borderClass = props.borderClassName || 'border-black/10 dark:border-white/10';
+  const headerStyle: React.CSSProperties = {
+    ...surface,
+    ...((props.style || {}) as React.CSSProperties),
+    ...(props.sticky ? { top: props.topOffset || '0px' } : {}),
+  };
+  if (raw.borderBottom === true && typeof raw.borderColor === 'string' && raw.borderColor) {
+    headerStyle.borderBottomWidth = 1;
+    headerStyle.borderBottomStyle = 'solid';
+    headerStyle.borderBottomColor = raw.borderColor;
+  }
+  const borderClass =
+    raw.borderBottom === true && typeof raw.borderColor === 'string'
+      ? 'border-b-0'
+      : props.borderClassName || 'border-black/10 dark:border-white/10';
   const shadowClass = props.shadowClassName || '';
+  const accent = typeof raw.accentColor === 'string' ? raw.accentColor : undefined;
+  const titleColor =
+    typeof raw.textColor === 'string' && raw.textColor ? { color: raw.textColor } : undefined;
+  const fs = fontSizeFromProp(raw.fontSize);
 
   return (
     <header
@@ -33,8 +50,15 @@ export const Header: React.FC<any> = (rawProps) => {
       <div className={`container mx-auto ${props.containerClassName || ''}`.trim()}>
         <div className={`flex h-18 items-center px-4 md:px-6 justify-between ${props.innerClassName || ''}`.trim()}>
         <div className={`flex items-center gap-3 ${props.brandClassName || ''}`.trim()}>
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)]" />
-          <a href="/" className="font-semibold text-xl tracking-tight">
+          <span
+            className={`inline-block h-2.5 w-2.5 rounded-full ${accent ? '' : 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)]'}`}
+            style={
+              accent
+                ? { backgroundColor: accent, boxShadow: `0 0 18px ${accent}88` }
+                : undefined
+            }
+          />
+          <a href="/" className="font-semibold text-xl tracking-tight" style={{ ...titleColor, fontSize: fs }}>
             {props.title}
           </a>
         </div>

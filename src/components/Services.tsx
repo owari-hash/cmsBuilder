@@ -1,6 +1,7 @@
 import React from 'react';
 import { ServicesSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
+import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 
 export const Services: React.FC<any> = (rawProps) => {
   const parseResult = ServicesSchema.safeParse(rawProps);
@@ -15,16 +16,28 @@ export const Services: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
-  const bgClass = bgMap[props.theme];
+  const raw = props as Record<string, unknown>;
+  const surface = surfaceStyleFromProps(raw);
+  const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
+  const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
   const pyClass = spacingMap[props.spacing];
+  const titleSize = fontSizeFromProp(raw.titleSize);
 
   return (
-    <section className={`w-full ${pyClass} ${bgClass}`}>
+    <section className={`w-full ${pyClass} ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
         <div className={`max-w-6xl mx-auto space-y-10 ${alignClass}`}>
           {props.title && (
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{props.title}</h2>
+            <h2
+              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              style={{
+                ...(titleSize ? { fontSize: titleSize } : {}),
+                ...(typeof raw.textColor === 'string' ? { color: raw.textColor } : {}),
+              }}
+            >
+              {props.title}
+            </h2>
           )}
           {props.subtitle && <p className="text-lg opacity-80 max-w-3xl">{props.subtitle}</p>}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

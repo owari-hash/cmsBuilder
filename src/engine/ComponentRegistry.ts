@@ -114,6 +114,48 @@ const defaultComponentRegistry: Record<string, RegisteredComponent> = {
     }
   },
 
+  /** Same renderer/schema shape as `services` (grid of items); distinct type for editor templates */
+  features: {
+    component: Services,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Feature highlights grid (items + title; superadmin/agency blocks)',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
+  /** Full-width promo strip; same props model as hero (title, subtitle, colors, optional media) */
+  promo: {
+    component: Hero,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Promotional banner / strip',
+      version: '1.0.0',
+      capabilities: ['marketing', 'cta'],
+      requiredProps: ['title'],
+      deprecations: []
+    }
+  },
+
+  /** Partner or client logo grid; same item model as services */
+  clients: {
+    component: Services,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Client or partner logos (grid of items, often image-only)',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
   contact: {
     component: ContactSection,
     meta: {
@@ -550,7 +592,7 @@ export const IndustryModules: Record<string, IndustryModule> = {
     name: 'Service Business',
     enabledByDefault: true,
     featureFlags: ['leadCapture', 'appointments'],
-    componentTypes: ['header', 'hero', 'about', 'footer', 'button']
+    componentTypes: ['header', 'hero', 'about', 'services', 'features', 'promo', 'clients', 'footer', 'button']
   },
   ecommerce: {
     id: 'ecommerce',

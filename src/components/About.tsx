@@ -1,6 +1,7 @@
 import React from 'react';
 import { AboutSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
+import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 
 export const About: React.FC<any> = (rawProps) => {
   // Validate props against schema
@@ -16,21 +17,32 @@ export const About: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
-
-  // Map tokens to Tailwind classes
-  const bgClass = bgMap[props.theme];
+  const raw = props as Record<string, unknown>;
+  const surface = surfaceStyleFromProps(raw);
+  const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
+  const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
+  const titleSize = fontSizeFromProp(raw.titleSize);
 
   return (
-    <section className={`w-full py-16 lg:py-24 ${bgClass}`}>
+    <section className={`w-full py-16 lg:py-24 ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
         <div className={`flex flex-col space-y-6 max-w-4xl mx-auto ${alignClass}`}>
           {props.title && (
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2
+              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              style={{
+                ...(titleSize ? { fontSize: titleSize } : {}),
+                ...(typeof raw.textColor === 'string' ? { color: raw.textColor } : {}),
+              }}
+            >
               {props.title}
             </h2>
           )}
-          <p className="text-lg leading-relaxed opacity-80">
+          <p
+            className="text-lg leading-relaxed opacity-80"
+            style={typeof raw.textColor === 'string' ? { color: raw.textColor } : undefined}
+          >
             {props.description}
           </p>
 

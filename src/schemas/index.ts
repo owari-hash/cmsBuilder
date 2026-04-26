@@ -95,8 +95,8 @@ export const HeaderSchema = z.object({
   mobileMenuButtonClassName: z.string().optional(),
   borderClassName: z.string().optional(),
   shadowClassName: z.string().optional(),
-  style: z.record(z.any(), z.any()).optional()
-});
+  style: z.record(z.any(), z.any()).optional(),
+}).passthrough();
 
 export const HeroSchema = z.object({
   title: z.string().default("Welcome"),
@@ -106,7 +106,7 @@ export const HeroSchema = z.object({
   spacing: SpacingSchema.default("lg"),
   buttons: z.array(ButtonSchema).optional(), // Multiple buttons possible
   images: z.array(ImageSchema).optional(),
-});
+}).passthrough();
 
 export const AboutSchema = z.object({
   title: z.string().optional(),
@@ -115,7 +115,7 @@ export const AboutSchema = z.object({
   theme: ThemeSchema.default("light"),
   images: z.array(ImageSchema).optional(),
   button: ButtonSchema.optional(),
-});
+}).passthrough();
 
 export const FooterSchema = z.object({
   title: z.string().default("Site"),
@@ -131,8 +131,8 @@ export const FooterSchema = z.object({
   linkClassName: z.string().optional(),
   borderClassName: z.string().optional(),
   shadowClassName: z.string().optional(),
-  style: z.record(z.any(), z.any()).optional()
-});
+  style: z.record(z.any(), z.any()).optional(),
+}).passthrough();
 
 export const PaginationSchema = z.object({
   theme: ThemeSchema.default("light"),
@@ -469,6 +469,9 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   livechat: LivechatSchema,
   modal: ModalSchema,
   services: ServicesSchema,
+  features: ServicesSchema,
+  promo: HeroSchema,
+  clients: ServicesSchema,
   contact: ContactSectionSchema,
   text: TextSectionSchema,
   news: NewsSchema,
