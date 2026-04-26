@@ -1,6 +1,7 @@
 import React from 'react';
 import { RentalSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
+import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 
 /** Same layout as Services; schema alias for legacy `rental` type. */
 export const Rental: React.FC<any> = (rawProps) => {
@@ -35,7 +36,7 @@ export const Rental: React.FC<any> = (rawProps) => {
                 <>
                   {(item.iconUrl || item.imageUrl || item.image?.url) && (
                     <img
-                      src={item.iconUrl || item.imageUrl || item.image?.url}
+                      src={resolveDisplayImageUrl(item.iconUrl || item.imageUrl || item.image?.url)}
                       alt={item.image?.alt || ''}
                       className="w-full h-40 object-cover rounded-lg mb-3"
                     />

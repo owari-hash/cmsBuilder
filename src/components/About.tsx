@@ -3,6 +3,7 @@ import { AboutSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
+import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 
 export const About: React.FC<any> = (rawProps) => {
   // Validate props against schema
@@ -57,7 +58,7 @@ export const About: React.FC<any> = (rawProps) => {
                   <img
                     alt={img.alt || "About visual"}
                     className="w-full h-full object-cover transition-transform hover:scale-105"
-                    src={img.url}
+                    src={resolveDisplayImageUrl(img.url)}
                   />
                 </div>
               ))}

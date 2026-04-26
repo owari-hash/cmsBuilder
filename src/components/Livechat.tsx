@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { LivechatSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
+import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 
 type LocalMessage = {
   sender: 'bot' | 'agent' | 'user';
@@ -72,7 +73,7 @@ export const Livechat: React.FC<any> = (rawProps) => {
           <div className="px-4 py-3 border-b flex items-center justify-between">
             <div className="flex items-center gap-3">
               {props.agentAvatarUrl ? (
-                <img src={props.agentAvatarUrl} alt={props.agentName} className="h-9 w-9 rounded-full object-cover" />
+                <img src={resolveDisplayImageUrl(props.agentAvatarUrl)} alt={props.agentName} className="h-9 w-9 rounded-full object-cover" />
               ) : (
                 <div className="h-9 w-9 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-xs font-semibold">
                   {props.agentName.slice(0, 2).toUpperCase()}

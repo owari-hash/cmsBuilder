@@ -1,6 +1,7 @@
 import React from 'react';
 import { NewsSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
+import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 
 export const NewsSection: React.FC<any> = (rawProps) => {
   const parseResult = NewsSchema.safeParse(rawProps);
@@ -37,7 +38,7 @@ export const NewsSection: React.FC<any> = (rawProps) => {
                 <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/40">
                   {img && (
                     <img
-                      src={img}
+                      src={resolveDisplayImageUrl(img)}
                       alt={item.image?.alt || title}
                       className="w-full sm:w-40 h-40 object-cover rounded-lg shrink-0"
                     />

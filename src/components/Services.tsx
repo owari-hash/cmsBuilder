@@ -2,6 +2,7 @@ import React from 'react';
 import { ServicesSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 
 export const Services: React.FC<any> = (rawProps) => {
   const parseResult = ServicesSchema.safeParse(rawProps);
@@ -47,7 +48,7 @@ export const Services: React.FC<any> = (rawProps) => {
                 <>
                   {item.iconUrl || item.icon ? (
                     <img
-                      src={item.iconUrl || item.icon}
+                      src={resolveDisplayImageUrl(item.iconUrl || item.icon)}
                       alt=""
                       className="w-12 h-12 object-contain mb-3"
                     />

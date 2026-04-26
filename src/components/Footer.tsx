@@ -36,11 +36,19 @@ export const Footer: React.FC<any> = (rawProps) => {
   const titleColor =
     typeof raw.textColor === 'string' && raw.textColor ? { color: raw.textColor } : undefined;
   const fs = fontSizeFromProp(raw.fontSize);
+  const footerLinkEntries = props.footerLinks
+    ? Object.entries(props.footerLinks)
+    : [];
+  const hasFooterLinks = footerLinkEntries.length > 0;
 
   return (
     <footer className={`w-full py-10 ${bgClass} ${borderClass} ${shadowClass} ${props.className || ''}`.trim()} style={footerStyle}>
       <div className={`container px-4 md:px-6 mx-auto ${props.containerClassName || ''}`.trim()}>
-         <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left ${props.gridClassName || ''}`.trim()}>
+         <div
+            className={`grid grid-cols-1 gap-8 text-center md:text-left ${
+              hasFooterLinks ? 'md:grid-cols-3' : 'md:grid-cols-1'
+            } ${props.gridClassName || ''}`.trim()}
+         >
            <div className={`flex flex-col space-y-3 ${props.brandClassName || ''}`.trim()}>
              <span className="font-bold text-xl" style={{ ...titleColor, fontSize: fs }} {...cmsLiveEditAttrs(le, 'title')}>
                {props.title}
@@ -54,15 +62,19 @@ export const Footer: React.FC<any> = (rawProps) => {
                </div>
              ) : null}
            </div>
+           {hasFooterLinks ? (
+             <>
            <div></div>
            <div className={`flex flex-col space-y-3 md:items-end ${props.linksSectionClassName || ''}`.trim()}>
              <span className="font-semibold mb-2">Links</span>
-             {props.footerLinks && Object.entries(props.footerLinks).map(([key, label]) => (
+             {footerLinkEntries.map(([key, label]) => (
                <a key={key} href={`/${key}`} className={`text-sm hover:underline opacity-80 hover:opacity-100 ${props.linkClassName || ''}`.trim()}>
                  {label}
                </a>
              ))}
            </div>
+             </>
+           ) : null}
          </div>
       </div>
     </footer>
