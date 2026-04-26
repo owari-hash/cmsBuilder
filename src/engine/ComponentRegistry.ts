@@ -156,6 +156,20 @@ const defaultComponentRegistry: Record<string, RegisteredComponent> = {
     }
   },
 
+  /** Pricing tiers / plans grid (same item model as services) */
+  pricing: {
+    component: Services,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Pricing plans or tier cards (title + items with price, description, CTA)',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
   contact: {
     component: ContactSection,
     meta: {
@@ -592,7 +606,7 @@ export const IndustryModules: Record<string, IndustryModule> = {
     name: 'Service Business',
     enabledByDefault: true,
     featureFlags: ['leadCapture', 'appointments'],
-    componentTypes: ['header', 'hero', 'about', 'services', 'features', 'promo', 'clients', 'footer', 'button']
+    componentTypes: ['header', 'hero', 'about', 'services', 'features', 'promo', 'clients', 'pricing', 'footer', 'button']
   },
   ecommerce: {
     id: 'ecommerce',

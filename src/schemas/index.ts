@@ -472,6 +472,7 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   features: ServicesSchema,
   promo: HeroSchema,
   clients: ServicesSchema,
+  pricing: ServicesSchema,
   contact: ContactSectionSchema,
   text: TextSectionSchema,
   news: NewsSchema,
