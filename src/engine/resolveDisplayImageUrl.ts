@@ -4,6 +4,9 @@
  * Unsplash **photo pages** (https://unsplash.com/photos/...) are HTML, not bytes;
  * browsers will not render them as images. We rewrite to the official `/download`
  * endpoint (302 → CDN JPEG/WEBP), which works in img/background without an API key.
+ *
+ * **plus.unsplash.com** / **images.unsplash.com** URLs are already CDN/imgix responses;
+ * return them over HTTPS as-is (some browsers/CDNs need `referrerPolicy="no-referrer"` on `<img>`).
  */
 export function resolveDisplayImageUrl(raw: string | undefined | null): string {
   const s = typeof raw === 'string' ? raw.trim() : ''
@@ -12,6 +15,12 @@ export function resolveDisplayImageUrl(raw: string | undefined | null): string {
   try {
     const u = new URL(s)
     const host = u.hostname.replace(/^www\./i, '').toLowerCase()
+
+    if (host === 'plus.unsplash.com' || host === 'images.unsplash.com') {
+      u.protocol = 'https:'
+      return u.toString()
+    }
+
     if (host !== 'unsplash.com') return s
     if (!u.pathname.startsWith('/photos/')) return s
 

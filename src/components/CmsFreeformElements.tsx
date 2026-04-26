@@ -142,6 +142,16 @@ export function CmsFreeformElements({
         if (t === 'image') {
           const src = typeof o.src === 'string' && o.src.trim() ? resolveDisplayImageUrl(o.src) : '';
           const w = o.width;
+          const widthCss =
+            w === '100%' || w === '100'
+              ? '100%'
+              : typeof w === 'number'
+                ? w
+                : typeof w === 'string' && w.trim()
+                  ? w.trim()
+                  : 'auto';
+          const maxH = typeof o.height === 'number' ? o.height : undefined;
+          const isExternal = typeof src === 'string' && /^https?:\/\//i.test(src);
           if (!src) {
             return (
               <div
@@ -153,16 +163,18 @@ export function CmsFreeformElements({
             );
           }
           return (
-            <div key={key} className="w-full">
+            <div key={key} className="w-full min-w-0">
               {wrapOptionalHref(
                 o,
                 <img
                   src={src}
                   alt={typeof o.label === 'string' ? o.label : ''}
-                  className="h-auto w-full max-w-2xl rounded-lg object-contain"
+                  referrerPolicy={isExternal ? 'no-referrer' : undefined}
+                  className="h-auto max-w-full rounded-lg object-contain"
                   style={{
-                    maxHeight: typeof o.height === 'number' ? o.height : undefined,
-                    width: w === '100%' ? '100%' : typeof w === 'number' ? w : 'auto',
+                    maxHeight: maxH,
+                    width: widthCss === 'auto' ? undefined : widthCss,
+                    maxWidth: widthCss === '100%' ? '100%' : undefined,
                   }}
                 />,
               )}
