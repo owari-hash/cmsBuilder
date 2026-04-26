@@ -3,6 +3,7 @@ import { ServicesSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
+import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 export const Services: React.FC<any> = (rawProps) => {
   const parseResult = ServicesSchema.safeParse(rawProps);
@@ -24,6 +25,8 @@ export const Services: React.FC<any> = (rawProps) => {
   const alignClass = alignMap[props.align];
   const pyClass = spacingMap[props.spacing];
   const titleSize = fontSizeFromProp(raw.titleSize);
+  const freeformElements = readFreeformElements(raw);
+  const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
 
   return (
     <section className={`w-full ${pyClass} ${useThemeBg ? bgClass : ''}`} style={surface}>
@@ -80,6 +83,13 @@ export const Services: React.FC<any> = (rawProps) => {
               );
             })}
           </div>
+          {freeformElements.length > 0 && (
+            <CmsFreeformElements
+              items={freeformElements}
+              alignCenter={props.align === 'center'}
+              defaultTextColor={textColor}
+            />
+          )}
         </div>
       </div>
     </section>

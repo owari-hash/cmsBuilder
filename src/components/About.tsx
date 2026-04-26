@@ -4,6 +4,7 @@ import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
+import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 export const About: React.FC<any> = (rawProps) => {
   // Validate props against schema
@@ -26,6 +27,8 @@ export const About: React.FC<any> = (rawProps) => {
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
   const titleSize = fontSizeFromProp(raw.titleSize);
+  const freeformElements = readFreeformElements(raw);
+  const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
 
   return (
     <section className={`w-full py-16 lg:py-24 ${useThemeBg ? bgClass : ''}`} style={surface}>
@@ -63,6 +66,13 @@ export const About: React.FC<any> = (rawProps) => {
                 </div>
               ))}
             </div>
+          )}
+          {freeformElements.length > 0 && (
+            <CmsFreeformElements
+              items={freeformElements}
+              alignCenter={props.align === 'center'}
+              defaultTextColor={textColor}
+            />
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ContactSectionSchema } from '../schemas';
 import { alignMap, bgMap } from '../engine/Tokens';
+import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 export const ContactSection: React.FC<any> = (rawProps) => {
   const parseResult = ContactSectionSchema.safeParse(rawProps);
@@ -15,8 +16,10 @@ export const ContactSection: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
+  const raw = props as Record<string, unknown>;
   const bgClass = bgMap[props.theme];
   const alignClass = alignMap[props.align];
+  const freeformElements = readFreeformElements(raw);
 
   const rows = [
     props.phone && { label: 'Phone', value: props.phone, href: `tel:${props.phone.replace(/\s/g, '')}` },
@@ -63,6 +66,12 @@ export const ContactSection: React.FC<any> = (rawProps) => {
                 allowFullScreen
               />
             </div>
+          )}
+          {freeformElements.length > 0 && (
+            <CmsFreeformElements
+              items={freeformElements}
+              alignCenter={props.align === 'center'}
+            />
           )}
         </div>
       </div>
