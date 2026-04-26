@@ -98,6 +98,48 @@ export const HeaderSchema = z.object({
   style: z.record(z.any(), z.any()).optional(),
   /** Nav link label size in px (SuperAdmin builder + runtime Header) */
   navFontSize: z.coerce.number().min(8).max(28).optional(),
+
+  /** Main bar: horizontal distribution of brand / nav (Tailwind `justify-*`) */
+  rowJustify: z.enum(['start', 'center', 'end', 'between', 'around', 'evenly']).default('between'),
+  /** Main bar: vertical alignment of children */
+  rowItems: z
+    .enum(['start', 'center', 'end', 'baseline', 'stretch'])
+    .default('center'),
+  /** Swap brand and nav+CTA columns */
+  rowReverse: z.boolean().default(false),
+  /**
+   * `row`: one horizontal bar (default). `stack`: title row, then nav row (desktop; mobile still shows menu button).
+   */
+  headerLayout: z.enum(['row', 'stack']).default('row'),
+  /** In `stack` mode: where the brand/title row aligns on `md+` (mobile is always start + menu) */
+  stackBrandAlign: z.enum(['start', 'center', 'end']).default('center'),
+  /** In `stack` mode: `justify` for the nav+CTA row */
+  stackNavJustify: z
+    .enum(['start', 'center', 'end', 'between', 'around', 'evenly'])
+    .default('center'),
+  /**
+   * When false, CTA is its own group at the end of the bar; links stay in the middle.
+   * When true (default), CTA stays with nav links in one group.
+   */
+  ctaWithNav: z.boolean().default(true),
+  /** Optional gap in px between main flex children (0 = use Tailwind defaults). */
+  contentGap: z.coerce.number().min(0).max(64).optional(),
+
+  /**
+   * Freeform canvas: absolutely position brand / nav / CTA / mobile menu with `headerZones` (% l/t).
+   * When true, `headerLayout` row/stack and flex alignment props are ignored.
+   */
+  headerCanvas: z.boolean().default(false),
+  headerCanvasHeight: z.coerce.number().min(48).max(220).default(88),
+  /** Partial overrides; merged with defaults in the Header component. */
+  headerZones: z
+    .object({
+      brand: z.object({ l: z.number().min(0).max(100), t: z.number().min(0).max(100) }).optional(),
+      nav: z.object({ l: z.number().min(0).max(100), t: z.number().min(0).max(100) }).optional(),
+      cta: z.object({ l: z.number().min(0).max(100), t: z.number().min(0).max(100) }).optional(),
+      mobileMenu: z.object({ l: z.number().min(0).max(100), t: z.number().min(0).max(100) }).optional(),
+    })
+    .optional(),
 }).passthrough();
 
 export const HeroSchema = z.object({
