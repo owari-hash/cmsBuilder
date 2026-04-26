@@ -15,12 +15,18 @@ interface CMSPageProps {
   route: string;
   // Flat component instances from API - tree built at render time
   componentInstances?: ComponentInstance[];
+  /**
+   * When true (e.g. client admin iframe preview), text nodes may expose `data-cms-editable`
+   * for double-click inline edit + postMessage to parent.
+   */
+  liveEdit?: boolean;
 }
 
 export const CMSPage: React.FC<CMSPageProps> = ({ 
   design, 
   route, 
-  componentInstances 
+  componentInstances,
+  liveEdit = false,
 }) => {
   // Validate design data
   if (!design || !design.theme) {
@@ -113,6 +119,7 @@ export const CMSPage: React.FC<CMSPageProps> = ({
                 node={node}
                 projectTheme={design.theme}
                 canvasAnchorGlobal={null}
+                liveEdit={liveEdit}
               />
             ))
           )}

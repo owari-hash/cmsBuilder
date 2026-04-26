@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextSectionSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
+import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 
 export const TextSection: React.FC<any> = (rawProps) => {
   const parseResult = TextSectionSchema.safeParse(rawProps);
@@ -15,10 +16,18 @@ export const TextSection: React.FC<any> = (rawProps) => {
   }
 
   const props = parseResult.data;
+  const rawAll = props as Record<string, unknown>;
+  const le = !!(rawAll as { __liveEdit?: boolean }).__liveEdit;
   const bgClass = bgMap[props.theme];
   const alignClass = alignMap[props.align];
   const pyClass = spacingMap[props.spacing];
   const body = props.content || props.body || props.text || '';
+  const bodyFieldKey =
+    props.content != null && props.content !== ''
+      ? 'content'
+      : props.body != null && props.body !== ''
+        ? 'body'
+        : 'text';
   const looksLikeHtml = typeof body === 'string' && /<\/?[a-z][\s\S]*>/i.test(body);
 
   return (
@@ -26,7 +35,9 @@ export const TextSection: React.FC<any> = (rawProps) => {
       <div className="container px-4 mx-auto md:px-6">
         <div className={`max-w-4xl mx-auto space-y-6 ${alignClass}`}>
           {props.title && (
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{props.title}</h2>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl" {...cmsLiveEditAttrs(le, 'title')}>
+              {props.title}
+            </h2>
           )}
           {body ? (
             looksLikeHtml ? (
@@ -35,7 +46,12 @@ export const TextSection: React.FC<any> = (rawProps) => {
                 dangerouslySetInnerHTML={{ __html: body }}
               />
             ) : (
-              <p className="text-lg leading-relaxed whitespace-pre-wrap opacity-90 text-left">{body}</p>
+              <p
+                className="text-lg leading-relaxed whitespace-pre-wrap opacity-90 text-left"
+                {...cmsLiveEditAttrs(le, bodyFieldKey)}
+              >
+                {body}
+              </p>
             )
           ) : (
             <p className="text-gray-500 text-sm italic">No text content.</p>

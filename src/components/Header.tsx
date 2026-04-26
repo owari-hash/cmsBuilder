@@ -4,6 +4,7 @@ import { bgMap } from '../engine/Tokens';
 import { Button } from './Button';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 import { mergeHeaderZones } from './headerCanvasUtils';
+import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 
 const ROW_JUSTIFY: Record<string, string> = {
   start: 'justify-start',
@@ -40,6 +41,7 @@ export const Header: React.FC<any> = (rawProps) => {
 
   const p = parseResult.data;
   const raw = p as Record<string, unknown>;
+  const le = !!(raw as { __liveEdit?: boolean }).__liveEdit;
   const surface = surfaceStyleFromProps(raw);
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[p.theme] : '';
@@ -97,7 +99,12 @@ export const Header: React.FC<any> = (rawProps) => {
         className={cj('inline-block h-2.5 w-2.5 rounded-full', !accent && 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)]')}
         style={accent ? { backgroundColor: accent, boxShadow: `0 0 18px ${accent}88` } : undefined}
       />
-      <a href="/" className="font-semibold text-xl tracking-tight" style={{ ...titleColor, fontSize: fs }}>
+      <a
+        href="/"
+        className="font-semibold text-xl tracking-tight"
+        style={{ ...titleColor, fontSize: fs }}
+        {...cmsLiveEditAttrs(le, 'title')}
+      >
         {p.title}
       </a>
     </div>

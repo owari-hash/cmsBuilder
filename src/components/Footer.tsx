@@ -3,6 +3,7 @@ import { FooterSchema } from '../schemas';
 import { bgMap } from '../engine/Tokens';
 import { Button } from './Button';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 
 export const Footer: React.FC<any> = (rawProps) => {
   const parseResult = FooterSchema.safeParse(rawProps);
@@ -18,6 +19,7 @@ export const Footer: React.FC<any> = (rawProps) => {
 
   const props = parseResult.data;
   const raw = props as Record<string, unknown>;
+  const le = !!(raw as { __liveEdit?: boolean }).__liveEdit;
   const surface = surfaceStyleFromProps(raw);
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
@@ -40,10 +42,10 @@ export const Footer: React.FC<any> = (rawProps) => {
       <div className={`container px-4 md:px-6 mx-auto ${props.containerClassName || ''}`.trim()}>
          <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left ${props.gridClassName || ''}`.trim()}>
            <div className={`flex flex-col space-y-3 ${props.brandClassName || ''}`.trim()}>
-             <span className="font-bold text-xl" style={{ ...titleColor, fontSize: fs }}>
+             <span className="font-bold text-xl" style={{ ...titleColor, fontSize: fs }} {...cmsLiveEditAttrs(le, 'title')}>
                {props.title}
              </span>
-             <span className="text-sm opacity-70" style={textMuted}>
+             <span className="text-sm opacity-70" style={textMuted} {...cmsLiveEditAttrs(le, 'copyright')}>
                {props.copyright}
              </span>
              {props.button ? (

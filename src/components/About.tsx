@@ -2,6 +2,7 @@ import React from 'react';
 import { AboutSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 
 export const About: React.FC<any> = (rawProps) => {
   // Validate props against schema
@@ -18,6 +19,7 @@ export const About: React.FC<any> = (rawProps) => {
 
   const props = parseResult.data;
   const raw = props as Record<string, unknown>;
+  const le = !!(raw as { __liveEdit?: boolean }).__liveEdit;
   const surface = surfaceStyleFromProps(raw);
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
@@ -35,6 +37,7 @@ export const About: React.FC<any> = (rawProps) => {
                 ...(titleSize ? { fontSize: titleSize } : {}),
                 ...(typeof raw.textColor === 'string' ? { color: raw.textColor } : {}),
               }}
+              {...cmsLiveEditAttrs(le, 'title')}
             >
               {props.title}
             </h2>
@@ -42,6 +45,7 @@ export const About: React.FC<any> = (rawProps) => {
           <p
             className="text-lg leading-relaxed opacity-80"
             style={typeof raw.textColor === 'string' ? { color: raw.textColor } : undefined}
+            {...cmsLiveEditAttrs(le, 'description')}
           >
             {props.description}
           </p>

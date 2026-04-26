@@ -3,6 +3,7 @@ import { HeroSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { Button } from './Button';
 import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 
 export const Hero: React.FC<any> = (rawProps) => {
   const parseResult = HeroSchema.safeParse(rawProps);
@@ -18,6 +19,7 @@ export const Hero: React.FC<any> = (rawProps) => {
 
   const props = parseResult.data;
   const raw = props as Record<string, unknown>;
+  const le = !!(raw as { __liveEdit?: boolean }).__liveEdit;
   const surface = surfaceStyleFromProps(raw);
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
@@ -43,11 +45,16 @@ export const Hero: React.FC<any> = (rawProps) => {
       <h1
         className={titleSize ? 'font-extrabold tracking-tight' : 'text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl'}
         style={titleStyle}
+        {...cmsLiveEditAttrs(le, 'title')}
       >
         {props.title}
       </h1>
       {props.subtitle && (
-        <p className={subtitleSize ? '' : 'text-lg md:text-xl opacity-80'} style={subtitleStyle}>
+        <p
+          className={subtitleSize ? '' : 'text-lg md:text-xl opacity-80'}
+          style={subtitleStyle}
+          {...cmsLiveEditAttrs(le, 'subtitle')}
+        >
           {props.subtitle}
         </p>
       )}

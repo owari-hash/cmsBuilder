@@ -20,6 +20,8 @@ interface RecursiveRendererProps {
    * Used so nested nodes share the same coordinate space as the superadmin canvas.
    */
   canvasAnchorGlobal?: { x: number; y: number } | null;
+  /** When true, section components receive `__liveEdit` for iframe inline editing. */
+  liveEdit?: boolean;
 }
 
 /**
@@ -31,6 +33,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
   depth = 0,
   maxDepth = 10,
   canvasAnchorGlobal = null,
+  liveEdit = false,
 }) => {
   // Safety: prevent infinite recursion
   if (depth > maxDepth) {
@@ -98,6 +101,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
     __tokens: mergedTokens, // Keep serializable token map only
     __depth: depth, // For debugging
     __instanceId: node.instanceId, // For debugging/editing
+    __liveEdit: liveEdit,
   };
 
   if (!props.children && props.slots && typeof props.slots === 'object') {
@@ -122,6 +126,7 @@ export const RecursiveRenderer: React.FC<RecursiveRendererProps> = ({
           depth={depth + 1}
           maxDepth={maxDepth}
           canvasAnchorGlobal={anchorForChildren}
+          liveEdit={liveEdit}
         />
       ));
     });
