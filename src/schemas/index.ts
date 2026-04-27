@@ -523,6 +523,7 @@ export const ComponentSchemas: Record<string, z.ZodTypeAny> = {
   rental: RentalSchema,
   jobs: JobsSchema,
   "contact-form": ContactFormSchema,
+  products: ServicesSchema,
 };
 
 // ==========================================

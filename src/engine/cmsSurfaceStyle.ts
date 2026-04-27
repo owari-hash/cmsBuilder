@@ -6,6 +6,16 @@ export function surfaceStyleFromProps(raw: Record<string, unknown>): CSSProperti
   if (typeof raw.bgColor === 'string' && raw.bgColor) s.backgroundColor = raw.bgColor;
   if (typeof raw.textColor === 'string' && raw.textColor) s.color = raw.textColor;
 
+  // Font family from SuperAdmin block settings
+  if (typeof raw.fontFamily === 'string' && raw.fontFamily.trim()) {
+    s.fontFamily = raw.fontFamily;
+  }
+
+  // Accent color as CSS variable for child elements (buttons, links, etc.)
+  if (typeof raw.accentColor === 'string' && raw.accentColor.trim()) {
+    (s as any)['--accent-color'] = raw.accentColor;
+  }
+
   const px = raw.paddingX;
   if (typeof px === 'number' && Number.isFinite(px)) {
     s.paddingLeft = px;

@@ -5,6 +5,14 @@ import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceSty
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
+const SHADOW_MAP: Record<string, string> = {
+  none: 'shadow-none',
+  sm: 'shadow-sm',
+  md: 'shadow-md',
+  lg: 'shadow-lg',
+  xl: 'shadow-xl',
+};
+
 export const Services: React.FC<any> = (rawProps) => {
   const parseResult = ServicesSchema.safeParse(rawProps);
 
@@ -28,6 +36,25 @@ export const Services: React.FC<any> = (rawProps) => {
   const freeformElements = readFreeformElements(raw);
   const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
 
+  // SuperAdmin block-level visual props
+  const cols = typeof raw.columns === 'number' && raw.columns >= 1 ? raw.columns : 3;
+  const cardBg = typeof raw.cardBg === 'string' && raw.cardBg ? raw.cardBg : undefined;
+  const cardRadius = typeof raw.cardRadius === 'number' ? raw.cardRadius : undefined;
+  const cardShadow = typeof raw.cardShadow === 'string' ? raw.cardShadow : undefined;
+
+  const gridColsClass =
+    cols === 1 ? 'sm:grid-cols-1' :
+    cols === 2 ? 'sm:grid-cols-2' :
+    cols === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' :
+    'sm:grid-cols-2 lg:grid-cols-3';
+
+  const cardShadowClass = cardShadow ? SHADOW_MAP[cardShadow] || '' : '';
+
+  const cardStyle: React.CSSProperties = {
+    ...(cardBg ? { backgroundColor: cardBg } : {}),
+    ...(cardRadius !== undefined ? { borderRadius: cardRadius } : {}),
+  };
+
   return (
     <section className={`w-full ${pyClass} ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
@@ -44,7 +71,7 @@ export const Services: React.FC<any> = (rawProps) => {
             </h2>
           )}
           {props.subtitle && <p className="text-lg opacity-80 max-w-3xl">{props.subtitle}</p>}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`grid gap-6 ${gridColsClass}`}>
             {(props.items || []).map((item: any, i: number) => {
               const title = item.title || item.name || `Item ${i + 1}`;
               const inner = (
@@ -69,14 +96,16 @@ export const Services: React.FC<any> = (rawProps) => {
                 <a
                   key={i}
                   href={item.href}
-                  className="block p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/40 hover:shadow-md transition-shadow text-left"
+                  className={`block p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow text-left ${cardShadowClass} ${!cardBg ? 'bg-white/50 dark:bg-gray-900/40' : ''} ${cardRadius === undefined ? 'rounded-xl' : ''}`}
+                  style={cardStyle}
                 >
                   {inner}
                 </a>
               ) : (
                 <div
                   key={i}
-                  className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/40"
+                  className={`p-6 border border-gray-200 dark:border-gray-700 ${cardShadowClass} ${!cardBg ? 'bg-white/50 dark:bg-gray-900/40' : ''} ${cardRadius === undefined ? 'rounded-xl' : ''}`}
+                  style={cardStyle}
                 >
                   {inner}
                 </div>
@@ -97,3 +126,4 @@ export const Services: React.FC<any> = (rawProps) => {
 };
 
 export default Services;
+

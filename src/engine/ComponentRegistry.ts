@@ -170,6 +170,20 @@ const defaultComponentRegistry: Record<string, RegisteredComponent> = {
     }
   },
 
+  /** Product listing grid (same item model as services) */
+  products: {
+    component: Services,
+    meta: {
+      category: 'section' as ComponentCategory,
+      acceptsChildren: false,
+      description: 'Product showcase cards (title + items with image, price, description)',
+      version: '1.0.0',
+      capabilities: ['content', 'marketing'],
+      requiredProps: [],
+      deprecations: []
+    }
+  },
+
   contact: {
     component: ContactSection,
     meta: {
@@ -613,7 +627,7 @@ export const IndustryModules: Record<string, IndustryModule> = {
     name: 'E-commerce',
     enabledByDefault: false,
     featureFlags: ['catalog', 'cart', 'checkout'],
-    componentTypes: ['header', 'grid', 'card', 'pagination', 'footer', 'button']
+    componentTypes: ['header', 'grid', 'card', 'pagination', 'footer', 'button', 'products']
   },
   booking: {
     id: 'booking',

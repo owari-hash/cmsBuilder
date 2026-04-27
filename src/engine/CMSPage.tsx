@@ -102,11 +102,14 @@ export const CMSPage: React.FC<CMSPageProps> = ({
         className={`min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300 ${
           design.theme.pageBackground ? "" : "bg-white dark:bg-gray-900"
         }`}
-        style={
-          design.theme.pageBackground
+        style={{
+          ...(design.theme.pageBackground
             ? { backgroundColor: design.theme.pageBackground }
-            : undefined
-        }
+            : {}),
+          ...(design.theme.fontFamily
+            ? { fontFamily: design.theme.fontFamily }
+            : {}),
+        }}
       >
         <main
           className={useCanvasStage ? 'relative w-full' : undefined}

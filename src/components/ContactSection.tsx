@@ -1,6 +1,7 @@
 import React from 'react';
 import { ContactSectionSchema } from '../schemas';
 import { alignMap, bgMap } from '../engine/Tokens';
+import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 export const ContactSection: React.FC<any> = (rawProps) => {
@@ -17,8 +18,12 @@ export const ContactSection: React.FC<any> = (rawProps) => {
 
   const props = parseResult.data;
   const raw = props as Record<string, unknown>;
-  const bgClass = bgMap[props.theme];
+  const surface = surfaceStyleFromProps(raw);
+  const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
+  const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
+  const titleSize = fontSizeFromProp(raw.titleSize);
+  const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
   const freeformElements = readFreeformElements(raw);
 
   const rows = [
@@ -29,11 +34,19 @@ export const ContactSection: React.FC<any> = (rawProps) => {
   ].filter(Boolean) as Array<{ label: string; value: string; href?: string }>;
 
   return (
-    <section className={`w-full py-16 lg:py-24 ${bgClass}`}>
+    <section className={`w-full py-16 lg:py-24 ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
         <div className={`max-w-3xl mx-auto space-y-8 ${alignClass}`}>
           {props.title && (
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{props.title}</h2>
+            <h2
+              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              style={{
+                ...(titleSize ? { fontSize: titleSize } : {}),
+                ...(textColor ? { color: textColor } : {}),
+              }}
+            >
+              {props.title}
+            </h2>
           )}
           {props.subtitle && <p className="text-lg opacity-80">{props.subtitle}</p>}
 
@@ -71,6 +84,7 @@ export const ContactSection: React.FC<any> = (rawProps) => {
             <CmsFreeformElements
               items={freeformElements}
               alignCenter={props.align === 'center'}
+              defaultTextColor={textColor}
             />
           )}
         </div>
@@ -80,3 +94,4 @@ export const ContactSection: React.FC<any> = (rawProps) => {
 };
 
 export default ContactSection;
+
