@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import { ButtonToken } from '../schemas';
 
 export const buttonVariantMap: Record<NonNullable<ButtonToken['variant']>, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm border border-transparent",
+  primary: "bg-[var(--accent-color,#3b82f6)] text-white hover:brightness-110 shadow-sm border border-transparent",
   secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 border border-transparent",
-  outline: "bg-transparent text-current border border-current hover:bg-gray-100/10",
-  ghost: "bg-transparent text-current border border-transparent hover:bg-gray-100/10"
+  outline: "bg-transparent text-[var(--accent-color,currentColor)] border border-[var(--accent-color,currentColor)] hover:bg-[var(--accent-color)] hover:text-white transition-all",
+  ghost: "bg-transparent text-[var(--accent-color,currentColor)] border border-transparent hover:bg-[var(--accent-color)]/10"
 };
 
 export const buttonSizeMap: Record<NonNullable<ButtonToken['size']>, string> = {

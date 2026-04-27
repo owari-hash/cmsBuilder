@@ -1,7 +1,7 @@
 import React from 'react';
 import { ServicesSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
-import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { surfaceStyleFromProps, fontSizeFromProp, typographyStyleFromProps } from '../engine/cmsSurfaceStyle';
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
@@ -32,7 +32,8 @@ export const Services: React.FC<any> = (rawProps) => {
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
   const pyClass = spacingMap[props.spacing];
-  const titleSize = fontSizeFromProp(raw.titleSize);
+  const titleStyle = typographyStyleFromProps(raw, 'title');
+  const subtitleStyle = typographyStyleFromProps(raw, 'subtitle');
   const freeformElements = readFreeformElements(raw);
   const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
 
@@ -55,22 +56,24 @@ export const Services: React.FC<any> = (rawProps) => {
     ...(cardRadius !== undefined ? { borderRadius: cardRadius } : {}),
   };
 
+  const titleSizeVal = titleStyle.fontSize;
+
   return (
     <section className={`w-full ${pyClass} ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
         <div className={`max-w-6xl mx-auto space-y-10 ${alignClass}`}>
           {props.title && (
             <h2
-              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              className={titleSizeVal ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
               style={{
-                ...(titleSize ? { fontSize: titleSize } : {}),
+                ...titleStyle,
                 ...(typeof raw.textColor === 'string' ? { color: raw.textColor } : {}),
               }}
             >
               {props.title}
             </h2>
           )}
-          {props.subtitle && <p className="text-lg opacity-80 max-w-3xl">{props.subtitle}</p>}
+          {props.subtitle && <p className="text-lg opacity-80 max-w-3xl" style={subtitleStyle}>{props.subtitle}</p>}
           <div className={`grid gap-6 ${gridColsClass}`}>
             {(props.items || []).map((item: any, i: number) => {
               const title = item.title || item.name || `Item ${i + 1}`;

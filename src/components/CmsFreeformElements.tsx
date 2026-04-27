@@ -110,7 +110,7 @@ export function CmsFreeformElements({
           const r = typeof o.radius === 'number' ? o.radius : 8;
           const style: React.CSSProperties = {
             color: (typeof o.color === 'string' && o.color) || '#fff',
-            background: (typeof o.bg === 'string' && o.bg) || '#6366f1',
+            background: (typeof o.bg === 'string' && o.bg) || 'var(--accent-color, #6366f1)',
             borderRadius: r,
             fontSize: (typeof o.size === 'number' && o.size) || 14,
             textDecoration: 'none',
@@ -218,7 +218,7 @@ export function CmsFreeformElements({
               className="w-full my-2 opacity-40"
               style={{
                 height: h,
-                background: bg,
+                background: bg === 'currentColor' ? 'var(--accent-color, currentColor)' : bg,
                 maxWidth: o.width === '100%' ? '100%' : typeof o.width === 'number' ? o.width : '100%',
                 marginLeft: alignCenter ? 'auto' : undefined,
                 marginRight: alignCenter ? 'auto' : undefined,
@@ -244,7 +244,7 @@ export function CmsFreeformElements({
                   className="inline-block px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide"
                   style={{
                     color: (typeof o.color === 'string' && o.color) || '#fff',
-                    background: (typeof o.bg === 'string' && o.bg) || '#6366f1',
+                    background: (typeof o.bg === 'string' && o.bg) || 'var(--accent-color, #6366f1)',
                     borderRadius: r,
                     fontSize: (typeof o.size === 'number' && o.size) || 11,
                   }}

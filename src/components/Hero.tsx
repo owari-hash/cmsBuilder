@@ -2,7 +2,7 @@ import React from 'react';
 import { HeroSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
 import { Button } from './Button';
-import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { surfaceStyleFromProps, fontSizeFromProp, typographyStyleFromProps } from '../engine/cmsSurfaceStyle';
 import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
@@ -42,8 +42,6 @@ export const Hero: React.FC<any> = (rawProps) => {
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
   const spacingClass = spacingMap[props.spacing];
-  const titleSize = fontSizeFromProp(raw.titleSize);
-  const subtitleSize = fontSizeFromProp(raw.subtitleSize);
   const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
   const hasImage = raw.hasImage === true;
   const firstImg = props.images && props.images[0];
@@ -56,18 +54,21 @@ export const Hero: React.FC<any> = (rawProps) => {
   const freeformElements = readFreeformElements(raw);
 
   const titleStyle: React.CSSProperties = {
-    ...(titleSize ? { fontSize: titleSize, lineHeight: 1.1 } : {}),
+    ...typographyStyleFromProps(raw, 'title'),
     ...(textColor ? { color: textColor } : {}),
   };
   const subtitleStyle: React.CSSProperties = {
-    ...(subtitleSize ? { fontSize: subtitleSize } : {}),
+    ...typographyStyleFromProps(raw, 'subtitle'),
     ...(textColor ? { color: textColor, opacity: 0.85 } : {}),
   };
+
+  const titleSizeVal = titleStyle.fontSize;
+  const subtitleSizeVal = subtitleStyle.fontSize;
 
   const textBlock = (
     <div className={`space-y-4 max-w-3xl ${props.align === 'center' && !hasImage ? 'mx-auto' : ''}`}>
       <h1
-        className={titleSize ? 'font-extrabold tracking-tight' : 'text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl'}
+        className={titleSizeVal ? 'font-extrabold tracking-tight' : 'text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl'}
         style={titleStyle}
         {...cmsLiveEditAttrs(le, 'title')}
       >
@@ -75,7 +76,7 @@ export const Hero: React.FC<any> = (rawProps) => {
       </h1>
       {props.subtitle && (
         <p
-          className={subtitleSize ? '' : 'text-lg md:text-xl opacity-80'}
+          className={subtitleSizeVal ? '' : 'text-lg md:text-xl opacity-80'}
           style={subtitleStyle}
           {...cmsLiveEditAttrs(le, 'subtitle')}
         >
@@ -112,14 +113,39 @@ export const Hero: React.FC<any> = (rawProps) => {
 
   return (
     <section
-      className={`w-full border-b ${hasImage ? 'py-12 md:py-16' : `${spacingClass} ${useThemeBg ? bgClass : ''}`}`}
+      className={`relative w-full ${hasImage ? 'py-12 md:py-20' : `${spacingClass} ${useThemeBg ? bgClass : ''}`}`}
       style={surface}
     >
-      <div className="container px-4 md:px-6 mx-auto">
+      {/* Background Video Support */}
+      {typeof raw.bgVideoUrl === 'string' && raw.bgVideoUrl.trim() && (
+        <div className="absolute inset-0 overflow-hidden z-0">
+          <video
+            src={raw.bgVideoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      {/* Overlay Support */}
+      {(typeof raw.overlayColor === 'string' || typeof (surface as any)['--overlay-opacity'] === 'number') && (
+        <div
+          className="absolute inset-0 z-1"
+          style={{
+            backgroundColor: (surface as any)['--overlay-color'] || 'black',
+            opacity: typeof (surface as any)['--overlay-opacity'] === 'number' ? (surface as any)['--overlay-opacity'] : 0.4
+          }}
+        />
+      )}
+
+      <div className="container relative z-10 px-4 md:px-6 mx-auto">
         {hasImage ? (
-          <div className="grid w-full max-w-6xl mx-auto grid-cols-1 gap-10 md:grid-cols-2 md:items-center">
+          <div className="grid w-full max-w-6xl mx-auto grid-cols-1 gap-12 md:grid-cols-2 md:items-center">
             <div
-              className={`order-2 md:order-1 min-h-[220px] w-full rounded-2xl md:min-h-[280px] ${primaryImageSrc ? '' : 'bg-slate-200/80'}`}
+              className={`order-2 md:order-1 min-h-[280px] w-full rounded-2xl md:min-h-[400px] shadow-2xl transition-transform hover:scale-[1.02] duration-500 ${primaryImageSrc ? '' : 'bg-slate-200/80'}`}
               style={
                 primaryImageSrc
                   ? {
@@ -131,10 +157,10 @@ export const Hero: React.FC<any> = (rawProps) => {
               }
               aria-hidden={!primaryImageSrc}
             />
-            <div className={`order-1 md:order-2 flex flex-col ${alignClass} space-y-6`}>{textBlock}</div>
+            <div className={`order-1 md:order-2 flex flex-col ${alignClass} space-y-8`}>{textBlock}</div>
           </div>
         ) : (
-          <div className={`flex flex-col ${alignClass} space-y-8`}>
+          <div className={`flex flex-col ${alignClass} space-y-10`}>
             {textBlock}
             {imageBlock}
           </div>

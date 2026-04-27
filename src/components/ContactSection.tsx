@@ -1,7 +1,7 @@
 import React from 'react';
 import { ContactSectionSchema } from '../schemas';
 import { alignMap, bgMap } from '../engine/Tokens';
-import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { surfaceStyleFromProps, fontSizeFromProp, typographyStyleFromProps } from '../engine/cmsSurfaceStyle';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
 
 export const ContactSection: React.FC<any> = (rawProps) => {
@@ -22,7 +22,8 @@ export const ContactSection: React.FC<any> = (rawProps) => {
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
-  const titleSize = fontSizeFromProp(raw.titleSize);
+  const titleStyle = typographyStyleFromProps(raw, 'title');
+  const subtitleStyle = typographyStyleFromProps(raw, 'subtitle');
   const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
   const freeformElements = readFreeformElements(raw);
 
@@ -33,22 +34,21 @@ export const ContactSection: React.FC<any> = (rawProps) => {
     props.hours && { label: 'Hours', value: props.hours },
   ].filter(Boolean) as Array<{ label: string; value: string; href?: string }>;
 
+  const titleSizeVal = titleStyle.fontSize;
+
   return (
     <section className={`w-full py-16 lg:py-24 ${useThemeBg ? bgClass : ''}`} style={surface}>
       <div className="container px-4 mx-auto md:px-6">
         <div className={`max-w-3xl mx-auto space-y-8 ${alignClass}`}>
           {props.title && (
             <h2
-              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
-              style={{
-                ...(titleSize ? { fontSize: titleSize } : {}),
-                ...(textColor ? { color: textColor } : {}),
-              }}
+              className={titleSizeVal ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              style={titleStyle}
             >
               {props.title}
             </h2>
           )}
-          {props.subtitle && <p className="text-lg opacity-80">{props.subtitle}</p>}
+          {props.subtitle && <p className="text-lg opacity-80" style={subtitleStyle}>{props.subtitle}</p>}
 
           <dl className="space-y-4 text-left">
             {rows.map((row) => (

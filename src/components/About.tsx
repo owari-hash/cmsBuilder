@@ -1,7 +1,7 @@
 import React from 'react';
 import { AboutSchema } from '../schemas';
 import { alignMap, bgMap, spacingMap } from '../engine/Tokens';
-import { surfaceStyleFromProps, fontSizeFromProp } from '../engine/cmsSurfaceStyle';
+import { surfaceStyleFromProps, fontSizeFromProp, typographyStyleFromProps } from '../engine/cmsSurfaceStyle';
 import { cmsLiveEditAttrs } from '../engine/cmsLiveEditAttrs';
 import { resolveDisplayImageUrl } from '../engine/resolveDisplayImageUrl';
 import { CmsFreeformElements, readFreeformElements } from './CmsFreeformElements';
@@ -26,9 +26,12 @@ export const About: React.FC<any> = (rawProps) => {
   const useThemeBg = typeof raw.bgColor !== 'string' || !String(raw.bgColor).trim();
   const bgClass = useThemeBg ? bgMap[props.theme] : '';
   const alignClass = alignMap[props.align];
-  const titleSize = fontSizeFromProp(raw.titleSize);
+  const titleStyle = typographyStyleFromProps(raw, 'title');
+  const descriptionStyle = typographyStyleFromProps(raw, 'body'); // About description uses 'body' or '' prefix in builder? Usually '' for generic blocks.
   const freeformElements = readFreeformElements(raw);
   const textColor = typeof raw.textColor === 'string' ? raw.textColor : undefined;
+
+  const titleSizeVal = titleStyle.fontSize;
 
   return (
     <section className={`w-full py-16 lg:py-24 ${useThemeBg ? bgClass : ''}`} style={surface}>
@@ -36,11 +39,8 @@ export const About: React.FC<any> = (rawProps) => {
         <div className={`flex flex-col space-y-6 max-w-4xl mx-auto ${alignClass}`}>
           {props.title && (
             <h2
-              className={titleSize ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
-              style={{
-                ...(titleSize ? { fontSize: titleSize } : {}),
-                ...(typeof raw.textColor === 'string' ? { color: raw.textColor } : {}),
-              }}
+              className={titleSizeVal ? 'font-bold tracking-tight' : 'text-3xl font-bold tracking-tight sm:text-4xl'}
+              style={titleStyle}
               {...cmsLiveEditAttrs(le, 'title')}
             >
               {props.title}
@@ -48,7 +48,7 @@ export const About: React.FC<any> = (rawProps) => {
           )}
           <p
             className="text-lg leading-relaxed opacity-80"
-            style={typeof raw.textColor === 'string' ? { color: raw.textColor } : undefined}
+            style={descriptionStyle}
             {...cmsLiveEditAttrs(le, 'description')}
           >
             {props.description}
